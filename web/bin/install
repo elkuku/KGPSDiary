@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Install script
+#
+# License: WTFPL
+# Author: Nikolai Plath
+#
+
+# Ensure we're in the right spot. @todo this only works in bash :(
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && cd .. && pwd)"
+cd "$DIR" || exit 1
+DOCKER_CONTAINER="kgpsdiary-database-1"
+
+. ./bin/functions.sh
+
+checkIsInstalled composer
+checkIsInstalled docker-compose
+checkIsInstalled symfony
+
+echo "🚀 Setting up dev env in $DIR ..."
+
+composer install
+
+docker-compose up -d
+
+echo -n 'Waiting for db '
+waitContainer "$DOCKER_CONTAINER"
+echo " ✅  "
+
+symfony console doctrine:migrations:migrate -n
+
+symfony server:start -d
+
+symfony open:local
+
+echo "✨  hF =;) 🤪"

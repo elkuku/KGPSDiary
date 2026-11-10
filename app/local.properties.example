@@ -1,0 +1,18 @@
+# Copy to local.properties (git-ignored) and fill in.
+sdk.dir=/path/to/Android/Sdk
+
+# Web OAuth client ID from the KGPSDiary Google Cloud project (the same value as OAUTH_GOOGLE_ID in web)
+google.serverClientId=1234567890-abc.apps.googleusercontent.com
+
+# Base URL of web. 10.0.2.2 is the host machine as seen from the emulator.
+server.baseUrl.debug=http://10.0.2.2:8000
+server.baseUrl.release=https://kgpsdiary.elkuku.dev
+
+# Mapbox public access token (pk.…) for the app
+mapbox.accessToken=pk.your-token
+
+# Release signing: keystore outside the repo. Leave empty for an unsigned release build.
+release.storeFile=
+release.storePassword=
+release.keyAlias=kgpsdiary
+release.keyPassword=

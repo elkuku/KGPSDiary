@@ -1,0 +1,33 @@
+version: 2
+updates:
+    # Keeps the actions in .github/workflows up to date.
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+      groups:
+          github-actions:
+              patterns: ['*']
+
+    - package-ecosystem: composer
+      directory: /web
+      schedule:
+          interval: weekly
+      groups:
+          symfony:
+              patterns: ['symfony/*']
+          dev-tools:
+              dependency-type: development
+          # Dependabot picks the most specific group, and dependency-type beats
+          # a name pattern, so symfony/* must be excluded explicitly.
+          production:
+              dependency-type: production
+              exclude-patterns: ['symfony/*']
+
+    - package-ecosystem: gradle
+      directory: /app
+      schedule:
+          interval: weekly
+      groups:
+          android:
+              patterns: ['*']
