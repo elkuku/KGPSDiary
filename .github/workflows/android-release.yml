@@ -1,0 +1,77 @@
+name: Android release
+
+# Push a tag like v1.2.3 to build a signed release APK and publish it as a GitHub release.
+# Needs these repository secrets:
+#   RELEASE_KEYSTORE_BASE64   the release keystore (.jks), base64 encoded
+#   RELEASE_KEYSTORE_PASSWORD its password (the key uses the same)
+#   RELEASE_KEY_ALIAS         the key's alias
+#   GOOGLE_SERVER_CLIENT_ID   the Web OAuth client ID of the KGPSDiary Google Cloud project
+#   MAPBOX_ACCESS_TOKEN       a Mapbox public token (pk.…) for the app
+on:
+    push:
+        tags: ['v*']
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: app
+        steps:
+            - name: Git checkout
+              uses: actions/checkout@v7
+
+            - name: Setup JDK
+              uses: actions/setup-java@v6
+              with:
+                  distribution: temurin
+                  java-version: '21'
+
+            - name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v6
+
+            - name: Build the signed release APK
+              env:
+                  RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+                  RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+                  RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+                  GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+                  MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
+              run: |
+                  if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
+                      echo "::error::The RELEASE_KEYSTORE_BASE64 secret is missing, see docs/developers/release.md"
+                      exit 1
+                  fi
+                  echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+                  VERSION="${GITHUB_REF_NAME#v}"
+                  [ "$GITHUB_REF_TYPE" = tag ] || VERSION="0.0.0-${GITHUB_SHA::7}"
+                  ./gradlew --console=plain testReleaseUnitTest assembleRelease \
+                      -Papp.versionName="$VERSION" -Papp.versionCode="${{ github.run_number }}" \
+                      -Pserver.baseUrl.release=https://kgpsdiary.elkuku.dev \
+                      -Pgoogle.serverClientId="$GOOGLE_SERVER_CLIENT_ID" \
+                      -Pmapbox.accessToken="$MAPBOX_ACCESS_TOKEN" \
+                      -Prelease.storeFile="$RUNNER_TEMP/release.jks" \
+                      -Prelease.storePassword="$RELEASE_KEYSTORE_PASSWORD" \
+                      -Prelease.keyAlias="$RELEASE_KEY_ALIAS" \
+                      -Prelease.keyPassword="$RELEASE_KEYSTORE_PASSWORD"
+                  rm "$RUNNER_TEMP/release.jks"
+                  cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/kgpsdiary-$VERSION.apk"
+                  echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+            - name: Publish the GitHub release
+              if: github.ref_type == 'tag'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP/kgpsdiary-$VERSION.apk" --title "KGPSDiary $VERSION" --generate-notes
+
+            - name: Upload the APK (manual runs)
+              if: github.ref_type != 'tag'
+              uses: actions/upload-artifact@v7
+              with:
+                  name: kgpsdiary-${{ env.VERSION }}
+                  path: ${{ runner.temp }}/kgpsdiary-${{ env.VERSION }}.apk
+                  retention-days: 7

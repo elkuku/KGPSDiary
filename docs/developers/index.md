@@ -3,6 +3,8 @@
 - [Architecture](architecture.md)
 - [API](api.md)
 - [Google Sign-In setup](google-sign-in.md)
+- [Deploying the web app](deployment.md)
+- [Releasing the app](release.md)
 
 ## Getting started
 

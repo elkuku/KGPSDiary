@@ -6,13 +6,21 @@
 # Author: Nikolai Plath
 #
 
-#PHP="/opt/plesk/php/8.3/bin/php"
-#COMPOSER="/usr/lib/plesk-9.0/composer.phar"
-PHP=php
-COMPOSER=composer
+PHP="/opt/plesk/php/8.5/bin/php"
+COMPOSER="/usr/lib/plesk-9.0/composer.phar"
+#PHP=php
+#COMPOSER=composer
+
+# Run from the Symfony root (web/), wherever the script is called from
+cd "$(dirname "$0")/.." || exit 1
 
 echo ">>>============================================================================="
 date
+
+# The old compiled container may list bundles of removed packages, which breaks
+# composer's cache:clear; Symfony builds a new one
+echo "**** Removing the prod cache..."
+rm -rf var/cache/prod
 
 echo "**** Installing composer dependencies..."
 $PHP $COMPOSER install --no-dev --optimize-autoloader

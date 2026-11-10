@@ -86,4 +86,14 @@
         <item quantity="many">%d fotos se subirán al guardar.</item>
         <item quantity="other">%d fotos se subirán al guardar.</item>
     </plurals>
+
+    <string name="list_title">Puntos</string>
+    <string name="list_search">Buscar en título, descripción, categoría, etiquetas</string>
+    <string name="list_clear">Borrar la búsqueda</string>
+
+    <plurals name="list_found">
+        <item quantity="one">%1$d de %2$d puntos</item>
+        <item quantity="many">%1$d de %2$d puntos</item>
+        <item quantity="other">%1$d de %2$d puntos</item>
+    </plurals>
 </resources>

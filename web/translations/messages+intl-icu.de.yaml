@@ -1,4 +1,5 @@
 nav:
+    waypoints: Wegpunkte
     categories: Kategorien
     tags: Tags
     map: Karte
@@ -84,3 +85,10 @@ photo:
     flash:
         added: Die Fotos wurden hinzugefügt.
         deleted: Das Foto wurde gelöscht.
+list:
+    title: Wegpunkte
+    search: Titel, Beschreibung, Kategorie, Tags durchsuchen
+    search_button: Suchen
+    found: '{found} von {all, plural, one {# Wegpunkt} other {# Wegpunkten}}'
+    none: Du hast noch keine Wegpunkte. Lege einen auf der Karte an.
+    nothing_found: Kein Wegpunkt passt zur Suche.

@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'list.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <h2 class="mb-0">{{ 'list.title'|trans }}</h2>
+        <a class="btn btn-success btn-sm" href="{{ path('app_waypoint_new') }}">
+            <twig:ux:icon name="bi:plus-lg" /> {{ 'waypoint.new'|trans }}
+        </a>
+    </div>
+
+    <form class="d-flex gap-2 mb-2" role="search" method="get" action="{{ path('app_waypoint_index') }}">
+        <input class="form-control" type="search" name="q" value="{{ query }}" autofocus
+               placeholder="{{ 'list.search'|trans }}" aria-label="{{ 'list.search'|trans }}">
+        <button class="btn btn-outline-primary">{{ 'list.search_button'|trans }}</button>
+    </form>
+    <p class="text-body-secondary small">{{ 'list.found'|trans({found: waypoints|length, all: all}) }}</p>
+
+    {% if waypoints is empty %}
+        <p class="fst-italic text-body-secondary">{{ (query ? 'list.nothing_found' : 'list.none')|trans }}</p>
+    {% else %}
+        <div class="list-group mb-4">
+            {% for waypoint in waypoints %}
+                <a class="list-group-item list-group-item-action d-flex gap-3" href="{{ path('app_waypoint_show', {id: waypoint.id}) }}">
+                    <span class="rounded-circle border flex-shrink-0 mt-1"
+                          style="width: 1rem; height: 1rem; background-color: {{ waypoint.category.color ?? '#d84315' }}"></span>
+                    <span class="flex-grow-1 overflow-hidden">
+                        <span class="d-flex justify-content-between gap-2">
+                            <strong class="text-truncate">{{ waypoint.title }}</strong>
+                            {% if waypoint.visitedAt %}
+                                <small class="text-body-secondary text-nowrap">{{ waypoint.visitedAt|date('Y-m-d') }}</small>
+                            {% endif %}
+                        </span>
+                        {% if waypoint.category or waypoint.tags is not empty %}
+                            <small class="d-block text-body-secondary">
+                                {{ waypoint.category.name ?? '' }}
+                                {% for tag in waypoint.tags %}#{{ tag.name }} {% endfor %}
+                            </small>
+                        {% endif %}
+                        {% if waypoint.description %}
+                            <small class="d-block text-truncate">{{ waypoint.description }}</small>
+                        {% endif %}
+                    </span>
+                    {% if waypoint.photos is not empty %}
+                        <img class="rounded flex-shrink-0 object-fit-cover" style="width: 3.5rem; height: 3.5rem"
+                             src="{{ path('app_photo_thumb', {id: waypoint.photos.first.id}) }}" loading="lazy" alt="">
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

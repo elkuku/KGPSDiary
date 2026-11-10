@@ -23,8 +23,9 @@ android {
         applicationId = "org.elkuku.kgpsdiary"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // The release workflow sets both from the tag (v1.2.3) and its run number
+        versionCode = localProperty("app.versionCode", "1").toInt()
+        versionName = localProperty("app.versionName", "0.1.0")
 
         buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"${localProperty("google.serverClientId")}\"")
         // The Mapbox SDK reads its token from this string resource

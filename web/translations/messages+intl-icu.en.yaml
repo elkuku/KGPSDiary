@@ -1,4 +1,5 @@
 nav:
+    waypoints: Waypoints
     categories: Categories
     tags: Tags
     map: Map
@@ -84,3 +85,10 @@ photo:
     flash:
         added: The photos have been added.
         deleted: The photo has been deleted.
+list:
+    title: Waypoints
+    search: Search title, description, category, tags
+    search_button: Search
+    found: '{found} of {all, plural, one {# waypoint} other {# waypoints}}'
+    none: You have no waypoints yet. Add one on the map.
+    nothing_found: No waypoint matches the search.

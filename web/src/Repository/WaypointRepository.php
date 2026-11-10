@@ -20,6 +20,27 @@ class WaypointRepository extends ServiceEntityRepository
     }
 
     /**
+     * The user's waypoints with their category, tags and photos, newest visit first.
+     *
+     * @return list<Waypoint>
+     */
+    public function findByOwnerNewestFirst(User $owner): array
+    {
+        /* @var list<Waypoint> */
+        return $this->createQueryBuilder('w')
+            ->addSelect('c', 't', 'p')
+            ->leftJoin('w.category', 'c')
+            ->leftJoin('w.tags', 't')
+            ->leftJoin('w.photos', 'p')
+            ->where('w.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->orderBy('w.visitedAt', \SortDirection::Descending)
+            ->addOrderBy('w.id', \SortDirection::Descending)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * @return array<int, int> the number of the user's waypoints per category ID
      */
     public function countByCategory(User $owner): array

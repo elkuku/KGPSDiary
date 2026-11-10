@@ -22,6 +22,7 @@ Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 | Offline cache | `data/cache/` | Room database (`diary.db`) with each record as the API's JSON, for one account at a time; deleted on sign-out. Without a connection the map shows it with an "Offline" notice. |
 | Map | `ui/map/` | Mapbox Maps SDK (Compose extension): clustered markers in category colors, a long press adds a waypoint there, the + button one at the map's center, a tap shows a detail sheet. |
 | Categories and tags | `ui/manage/` | Adding, renaming, recoloring (12 marker colors) and deleting categories and tags, with their waypoint counts. The map filters by one category and one tag (chips above the map). |
+| List | `ui/list/`, `searchWaypoints()` in `data/Models.kt` | All waypoints, newest visit first, searched in title, description, category and tags (all words, ignoring case and accents); a tap shows the waypoint on the map. |
 | Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category, tags and photos (Android photo picker; picked photos are uploaded once the waypoint is saved). |
 | Photos | `ui/photo/`, `data/PhotoScaler.kt`, `KGPSDiaryApplication.kt` | Thumbnails and a full screen viewer with Coil, whose image loader adds the bearer token for the server; photos are scaled to 2048 pixels on the phone before the upload. |
 | UI | `ui/` | `MainViewModel` (session), `AppNavHost` (type-safe Navigation Compose), the sign-in and profile screens. |
@@ -54,6 +55,7 @@ build), and API Platform for the [API](api.md).
 | API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |
 | Pages | `src/Controller/` | One class per action: login, profile, the user admin, and the diary in `Waypoint/`: the map, its GeoJSON, and creating, showing, editing and deleting waypoints. |
 | Map | `assets/controllers/map_controller.js` | Stimulus controller with Mapbox GL JS (from the importmap): clustered waypoints in their category colors; a click on the map offers a new waypoint there; filters by category and tag. |
+| List | `src/Controller/Waypoint/Index.php`, `src/Waypoint/WaypointSearch.php` | `/waypoints` with the app's search. |
 | Categories and tags | `src/Controller/Category/`, `src/Controller/Tag/` | Lists with waypoint counts, a form for a new one, editing and deleting (the waypoints stay). |
 | Languages | `translations/` | English, German, Spanish (ICU messages), picked by the browser's `Accept-Language`. |
 

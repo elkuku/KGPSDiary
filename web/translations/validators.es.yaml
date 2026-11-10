@@ -1,3 +1,6 @@
 'You already have one with this {{ field }}.': 'Ya usas este nombre.'
 'Use a Material Symbols name like "hiking".': 'Usa un nombre de Material Symbols como «hiking».'
 'This item does not exist.': 'Este elemento no existe.'
+'Upload a JPEG, PNG, WebP or AVIF image.': 'Sube una imagen JPEG, PNG, WebP o AVIF.'
+'This identifier is already in use': 'Este identificador ya está en uso.'
+'The role must be a valid user role.': 'El rol debe ser un rol de usuario válido.'

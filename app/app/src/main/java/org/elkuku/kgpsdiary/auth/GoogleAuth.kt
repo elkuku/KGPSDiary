@@ -74,13 +74,13 @@ class CredentialManagerGoogleAuth(
     }
 
     override suspend fun signInSilently(context: Context): SilentSignIn {
-        val option = GetGoogleIdOption.Builder()
-            .setServerClientId(requireClientId())
-            .setFilterByAuthorizedAccounts(true)
-            .setAutoSelectEnabled(true)
-            .build()
-
+        // Inside the try: a missing client ID is "no account", not a crash at start
         return try {
+            val option = GetGoogleIdOption.Builder()
+                .setServerClientId(requireClientId())
+                .setFilterByAuthorizedAccounts(true)
+                .setAutoSelectEnabled(true)
+                .build()
             SilentSignIn.Signed(request(context, GetCredentialRequest.Builder().addCredentialOption(option).build()))
         } catch (_: NoCredentialException) {
             SilentSignIn.NoAccount

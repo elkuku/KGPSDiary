@@ -1,4 +1,5 @@
 nav:
+    waypoints: Puntos
     categories: Categorías
     tags: Etiquetas
     map: Mapa
@@ -84,3 +85,10 @@ photo:
     flash:
         added: Las fotos se han añadido.
         deleted: La foto se ha eliminado.
+list:
+    title: Puntos
+    search: Buscar en título, descripción, categoría, etiquetas
+    search_button: Buscar
+    found: '{found} de {all, plural, one {# punto} other {# puntos}}'
+    none: Todavía no tienes puntos. Añade uno en el mapa.
+    nothing_found: Ningún punto coincide con la búsqueda.

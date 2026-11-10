@@ -238,6 +238,34 @@ class WaypointControllerTest extends WebTestCase
         self::assertSelectorTextContains('main', 'No photos yet.');
     }
 
+    public function testListsAndSearchesTheUsersWaypoints(): void
+    {
+        $tag = new Tag()->setName('Ecuador')->setOwner($this->user('user'));
+        $this->entityManager()->persist($tag);
+        $this->waypoint('user', 'Basílica del Voto Nacional')->addTag($tag)->setVisitedAt(new \DateTimeImmutable('2026-11-02'));
+        $this->waypoint('user', 'Mercado Central')->setDescription('Lunch at the market')->setVisitedAt(new \DateTimeImmutable('2026-11-01'));
+        $this->waypoint('admin', 'Basilica of someone else');
+        $this->entityManager()->flush();
+
+        $this->client->loginUser($this->user('user'));
+
+        $crawler = $this->client->request('GET', '/waypoints');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['Basílica del Voto Nacional', 'Mercado Central'], $crawler->filter('.list-group strong')->each(static fn ($node): string => $node->text()));
+
+        // Without accents and case, in all words
+        $crawler = $this->client->request('GET', '/waypoints?q=basilica+ECUADOR');
+        self::assertSame(['Basílica del Voto Nacional'], $crawler->filter('.list-group strong')->each(static fn ($node): string => $node->text()));
+        self::assertSelectorTextContains('main', '1 of 2 waypoints');
+
+        // The description too
+        $crawler = $this->client->request('GET', '/waypoints?q=lunch');
+        self::assertSame(['Mercado Central'], $crawler->filter('.list-group strong')->each(static fn ($node): string => $node->text()));
+
+        $this->client->request('GET', '/waypoints?q=nowhere');
+        self::assertSelectorTextContains('main', 'No waypoint matches the search.');
+    }
+
     public function testThePagesAreTranslated(): void
     {
         $this->client->loginUser($this->user('user'));

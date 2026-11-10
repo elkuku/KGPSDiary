@@ -84,4 +84,13 @@
         <item quantity="one">%d Foto wird beim Speichern hochgeladen.</item>
         <item quantity="other">%d Fotos werden beim Speichern hochgeladen.</item>
     </plurals>
+
+    <string name="list_title">Wegpunkte</string>
+    <string name="list_search">Titel, Beschreibung, Kategorie, Tags durchsuchen</string>
+    <string name="list_clear">Suche leeren</string>
+
+    <plurals name="list_found">
+        <item quantity="one">%1$d von %2$d Wegpunkten</item>
+        <item quantity="other">%1$d von %2$d Wegpunkten</item>
+    </plurals>
 </resources>

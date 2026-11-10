@@ -83,3 +83,25 @@ data class TagInput(val name: String)
 fun filterWaypoints(waypoints: List<Waypoint>, categoryId: Int?, tagId: Int?): List<Waypoint> = waypoints.filter { waypoint ->
     (categoryId == null || waypoint.category?.id == categoryId) && (tagId == null || waypoint.tags.any { it.id == tagId })
 }
+
+/**
+ * The [waypoints] that contain every word of [query] in their title, description, category or
+ * tags; ignoring case and accents ("basilica" finds "Basílica").
+ */
+fun searchWaypoints(waypoints: List<Waypoint>, query: String): List<Waypoint> {
+    val words = searchable(query).split(' ').filter { it.isNotBlank() }
+    if (words.isEmpty()) return waypoints
+
+    return waypoints.filter { waypoint ->
+        val text = searchable(
+            listOfNotNull(waypoint.title, waypoint.description, waypoint.category?.name, *waypoint.tags.map { it.name }.toTypedArray())
+                .joinToString(" "),
+        )
+        words.all { it in text }
+    }
+}
+
+private val diacritics = Regex("\\p{Mn}+")
+
+private fun searchable(text: String): String =
+    java.text.Normalizer.normalize(text.lowercase(), java.text.Normalizer.Form.NFD).replace(diacritics, "")

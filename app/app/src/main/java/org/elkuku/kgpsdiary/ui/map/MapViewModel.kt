@@ -99,6 +99,8 @@ class MapViewModel @Inject constructor(private val diary: DiaryRepository) : Vie
 
     fun filterTag(tagId: Int) = local.update { it.copy(tagId = tagId.takeIf { id -> id != it.tagId }) }
 
+    fun clearFilters() = local.update { it.copy(categoryId = null, tagId = null) }
+
     fun select(id: Int?) = local.update { state -> state.copy(selected = id?.let { diary.waypoint(it) }) }
 
     fun delete(context: Context, id: Int) {

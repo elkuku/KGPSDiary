@@ -97,6 +97,10 @@ import org.elkuku.kgpsdiary.data.Waypoint
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
+    /** A waypoint to fly to and show, e.g. chosen in the list; [onFocused] once shown. */
+    focusId: Int?,
+    onFocused: () -> Unit,
+    onList: () -> Unit,
     onAdd: (latitude: Double, longitude: Double) -> Unit,
     onEdit: (id: Int) -> Unit,
     onProfile: () -> Unit,
@@ -118,6 +122,17 @@ fun MapScreen(
     }
 
     LaunchedEffect(Unit) { viewModel.load(context) }
+    // Where the map shows a waypoint chosen in the list; applied once the map view exists
+    var focusPoint by remember { mutableStateOf<Point?>(null) }
+    LaunchedEffect(focusId, state.waypoints) {
+        val waypoint = state.waypoints.find { it.id == focusId } ?: return@LaunchedEffect
+        // Shown on the map: the filters let it through
+        viewModel.clearFilters()
+        viewModel.select(waypoint.id)
+        fitted = true
+        focusPoint = Point.fromLngLat(waypoint.longitude, waypoint.latitude)
+        onFocused()
+    }
     LaunchedEffect(message) {
         if (message != null) {
             snackbarHostState.showSnackbar(message)
@@ -137,6 +152,9 @@ fun MapScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
+                    IconButton(onClick = onList) {
+                        Icon(painterResource(R.drawable.ic_list), stringResource(R.string.list_title))
+                    }
                     IconButton(onClick = { viewModel.load(context) }, enabled = !state.loading) {
                         Icon(painterResource(R.drawable.ic_refresh), stringResource(R.string.refresh))
                     }
@@ -181,6 +199,12 @@ fun MapScreen(
                     true
                 },
             ) {
+                MapEffect(focusPoint) { mapView ->
+                    focusPoint?.let { point ->
+                        mapView.mapboxMap.setCamera(CameraOptions.Builder().center(point).zoom(15.0).build())
+                        focusPoint = null
+                    }
+                }
                 MapEffect(locationGranted) { mapView ->
                     mapView.location.updateSettings {
                         enabled = locationGranted

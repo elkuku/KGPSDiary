@@ -85,4 +85,13 @@
         <item quantity="one">%d photo will be uploaded when you save.</item>
         <item quantity="other">%d photos will be uploaded when you save.</item>
     </plurals>
+
+    <string name="list_title">Waypoints</string>
+    <string name="list_search">Search title, description, category, tags</string>
+    <string name="list_clear">Clear the search</string>
+
+    <plurals name="list_found">
+        <item quantity="one">%1$d of %2$d waypoints</item>
+        <item quantity="other">%1$d of %2$d waypoints</item>
+    </plurals>
 </resources>
