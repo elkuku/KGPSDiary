@@ -36,6 +36,9 @@ class DiaryRepository @Inject constructor(
     private val _tags = MutableStateFlow<List<Tag>>(emptyList())
     val tags: StateFlow<List<Tag>> = _tags.asStateFlow()
 
+    private val _tracks = MutableStateFlow<List<Track>>(emptyList())
+    val tracks: StateFlow<List<Track>> = _tracks.asStateFlow()
+
     /** When the lists last matched the server; null before the first load. */
     private val _syncedAt = MutableStateFlow<Instant?>(null)
     val syncedAt: StateFlow<Instant?> = _syncedAt.asStateFlow()
@@ -53,6 +56,7 @@ class DiaryRepository @Inject constructor(
         _waypoints.value = cached.waypoints
         _categories.value = cached.categories
         _tags.value = cached.tags
+        _tracks.value = cached.tracks
         _syncedAt.value = cached.savedAt
     }
 
@@ -67,9 +71,13 @@ class DiaryRepository @Inject constructor(
         val tags = sessionManager.authorized(context, api::tags)
         if (tags !is ApiResult.Success) return tags.withoutValue()
 
+        val tracks = sessionManager.authorized(context, api::tracks)
+        if (tracks !is ApiResult.Success) return tracks.withoutValue()
+
         _waypoints.value = waypoints.value
         _categories.value = categories.value
         _tags.value = tags.value
+        _tracks.value = tracks.value
         persist()
 
         return ApiResult.Success(Unit)
@@ -135,11 +143,23 @@ class DiaryRepository @Inject constructor(
             updateWaypoint(waypointId) { waypoint -> waypoint.copy(photos = waypoint.photos.filter { it.id != photoId }) }
         }
 
+    /** Uploads a recorded track. */
+    suspend fun saveTrack(context: Context, input: TrackInput): ApiResult<Track> =
+        sessionManager.authorized(context) { token -> api.createTrack(token, input) }.onSuccess { saved ->
+            _tracks.update { list -> listOf(saved) + list }
+        }
+
+    suspend fun deleteTrack(context: Context, id: Int): ApiResult<Unit> =
+        sessionManager.authorized(context) { token -> api.deleteTrack(token, id) }.onSuccess {
+            _tracks.update { list -> list.filter { it.id != id } }
+        }
+
     /** Forgets the diary, on the phone too, e.g. after signing out. */
     suspend fun clear() {
         _waypoints.value = emptyList()
         _categories.value = emptyList()
         _tags.value = emptyList()
+        _tracks.value = emptyList()
         _syncedAt.value = null
         cache.clear()
     }
@@ -157,7 +177,7 @@ class DiaryRepository @Inject constructor(
         val now = Instant.now()
         _syncedAt.value = now
         val owner = owner ?: return
-        cache.save(owner, CachedDiary(_waypoints.value, _categories.value, _tags.value, now))
+        cache.save(owner, CachedDiary(_waypoints.value, _categories.value, _tags.value, now, _tracks.value))
     }
 
     private fun updateWaypoint(id: Int, change: (Waypoint) -> Waypoint) =

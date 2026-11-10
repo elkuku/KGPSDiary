@@ -1,4 +1,5 @@
 nav:
+    tracks: Recorridos
     waypoints: Puntos
     categories: Categorías
     tags: Etiquetas
@@ -92,3 +93,13 @@ list:
     found: '{found} de {all, plural, one {# punto} other {# puntos}}'
     none: Todavía no tienes puntos. Añade uno en el mapa.
     nothing_found: Ningún punto coincide con la búsqueda.
+track:
+    title: Recorridos
+    intro: Los recorridos se graban con la app. En el mapa son las líneas moradas.
+    none: Todavía no hay recorridos. Graba uno con la app.
+    distance: '{km} km'
+    duration: '{hours, plural, =0 {} other {# h }}{minutes} min'
+    points: '{count, plural, one {# punto} other {# puntos}}'
+    delete_confirm: '¿Eliminar el recorrido «{name}»?'
+    flash:
+        deleted: El recorrido se ha eliminado.

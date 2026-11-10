@@ -41,7 +41,7 @@ symfony console user-admin  # Interactive user management CLI
 ### Entities & Enums
 - **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. `googleId` is nullable until the user first signs in with Google. Role is stored via `UserRole` enum.
 - **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
-- **`Waypoint`**, **`Category`**, **`Tag`**, **`Photo`** — the diary, all API Platform resources and `OwnedInterface` (`OwnedTrait`): each belongs to one user.
+- **`Waypoint`**, **`Category`**, **`Tag`**, **`Photo`**, **`Track`** — the diary, all API Platform resources and `OwnedInterface` (`OwnedTrait`): each belongs to one user.
 
 ### Owner scoping
 Users only see their own records, admins too: `Doctrine\OwnerExtension` restricts API queries (other users' records are 404, their IRIs 400), `State\OwnerProcessor` sets the owner of new records, `Security\Voter\OwnerVoter` grants `OWNER`. Validators: `UniqueForOwner` (names per user), `OwnedByUser` (references). Filters for waypoints are `QueryParameter`s (`#[ApiFilter]` is deprecated): `Filter\BboxFilter`, `Filter\UpdatedSinceFilter` and API Platform's `IriFilter`.
@@ -54,6 +54,7 @@ Single-action controller pattern under `src/Controller/`:
 - `Waypoint/` — the diary on the web: `Map` (`/map`), `Features` (`/map/waypoints.geojson`), `Create`, `Read`, `Update`, `Delete`; other users' waypoints are 404 (`IsGranted(OWNER, statusCode: 404)`)
 - `Category/`, `Tag/` — `Index` (list and new form), `Update`, `Delete`; other users' records are 404
 - `Photo/` — web upload, files (`/photos/{id}`, `/photos/{id}/thumb`) and delete; `Api/` — `UploadPhoto` (`POST /api/waypoints/{id}/photos`) and `PhotoFile` (`/api/photos/{id}/file`)
+- `Track/` — `Index` (`/tracks`), `Features` (`/map/tracks.geojson`), `Delete`; tracks are recorded with the app
 - `ProfileController`, `DefaultController` (start page)
 
 Access control uses `#[IsGranted()]` attributes.

@@ -93,4 +93,21 @@
         <item quantity="one">%1$d von %2$d Wegpunkten</item>
         <item quantity="other">%1$d von %2$d Wegpunkten</item>
     </plurals>
+
+    <string name="recording_start">Track aufzeichnen</string>
+    <string name="recording_stop">Stopp</string>
+    <string name="recording_channel">Track-Aufzeichnung</string>
+    <string name="recording_notification">Ein Track wird aufgezeichnet</string>
+    <string name="track_save_title">Track speichern</string>
+    <string name="track_name">Name</string>
+    <string name="track_default_name">Track %1$s</string>
+    <string name="track_discard">Verwerfen</string>
+    <string name="track_discard_text">Den aufgezeichneten Track verwerfen? Er lässt sich nicht wiederherstellen.</string>
+    <string name="track_too_short">Ein Track braucht mindestens 2 Punkte.</string>
+    <string name="track_saved">Der Track wurde gespeichert.</string>
+    <string name="track_not_saved">Der Track bleibt auf dem Telefon, versuche es noch einmal: %1$s</string>
+    <plurals name="recording_status">
+        <item quantity="one">%1$s km · %2$d Punkt</item>
+        <item quantity="other">%1$s km · %2$d Punkte</item>
+    </plurals>
 </resources>

@@ -19,8 +19,11 @@ import org.elkuku.kgpsdiary.data.ApiResult
 import org.elkuku.kgpsdiary.data.Category
 import org.elkuku.kgpsdiary.data.DiaryRepository
 import org.elkuku.kgpsdiary.data.Tag
+import org.elkuku.kgpsdiary.data.Track
 import org.elkuku.kgpsdiary.data.Waypoint
 import org.elkuku.kgpsdiary.data.filterWaypoints
+import org.elkuku.kgpsdiary.track.RecordedPoint
+import org.elkuku.kgpsdiary.track.TrackRecorder
 import org.elkuku.kgpsdiary.uiText
 
 data class MapUiState(
@@ -38,18 +41,29 @@ data class MapUiState(
     /** The server could not be reached: the map shows what the phone kept, from [syncedAt]. */
     val offline: Boolean = false,
     val syncedAt: Instant? = null,
+    val tracks: List<Track> = emptyList(),
+    /** A track is being recorded; [recordedPoints] are its points so far. */
+    val recording: Boolean = false,
+    val recordedPoints: List<RecordedPoint> = emptyList(),
+    val savingTrack: Boolean = false,
     val message: UiText? = null,
 ) {
+    /** Recorded, stopped and not uploaded yet: the app asks to save or discard it. */
+    val unsavedTrack: Boolean get() = !recording && recordedPoints.isNotEmpty()
+
     /** The waypoints the filters let through, for the map. */
     val visibleWaypoints: List<Waypoint> get() = filterWaypoints(waypoints, categoryId, tagId)
     val filtered: Boolean get() = categoryId != null || tagId != null
 }
 
 @HiltViewModel
-class MapViewModel @Inject constructor(private val diary: DiaryRepository) : ViewModel() {
+class MapViewModel @Inject constructor(
+    private val diary: DiaryRepository,
+    private val recorder: TrackRecorder,
+) : ViewModel() {
     private val local = MutableStateFlow(MapUiState())
 
-    val state: StateFlow<MapUiState> = combine(
+    private val diaryState = combine(
         local,
         diary.waypoints,
         diary.categories,
@@ -67,7 +81,42 @@ class MapViewModel @Inject constructor(private val diary: DiaryRepository) : Vie
             // The selection follows changes, and goes when the waypoint does
             selected = state.selected?.let { selected -> waypoints.find { it.id == selected.id } },
         )
+    }
+
+    val state: StateFlow<MapUiState> = combine(diaryState, diary.tracks, recorder.recording, recorder.points) { state, tracks, recording, points ->
+        state.copy(tracks = tracks, recording = recording, recordedPoints = points)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MapUiState())
+
+    /** Starts recording; the location permission must be granted. */
+    fun startRecording() = recorder.start()
+
+    fun stopRecording() = recorder.stop()
+
+    /** Uploads the stopped recording as [name]; it stays on the phone if that fails. */
+    fun saveTrack(context: Context, name: String) {
+        val points = state.value.recordedPoints
+        if (points.size < 2 || local.value.savingTrack) return
+
+        viewModelScope.launch {
+            local.update { it.copy(savingTrack = true) }
+            val result = diary.saveTrack(context, TrackRecorder.trackInput(name.trim(), points))
+            if (result is ApiResult.Success) recorder.discard()
+            local.update {
+                it.copy(
+                    savingTrack = false,
+                    message = when (result) {
+                        is ApiResult.Success -> uiText(R.string.track_saved)
+                        is ApiResult.Unauthorized -> result.message ?: uiText(R.string.error_unauthorized)
+                        is ApiResult.Failure -> uiText(R.string.track_not_saved, result.message)
+                    },
+                )
+            }
+        }
+    }
+
+    fun discardRecording() {
+        viewModelScope.launch { recorder.discard() }
+    }
 
     fun load(context: Context) {
         if (local.value.loading) return

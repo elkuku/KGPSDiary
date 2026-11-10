@@ -1,4 +1,5 @@
 nav:
+    tracks: Tracks
     waypoints: Waypoints
     categories: Categories
     tags: Tags
@@ -92,3 +93,13 @@ list:
     found: '{found} of {all, plural, one {# waypoint} other {# waypoints}}'
     none: You have no waypoints yet. Add one on the map.
     nothing_found: No waypoint matches the search.
+track:
+    title: Tracks
+    intro: Tracks are recorded with the app. On the map they are the purple lines.
+    none: No tracks yet. Record one with the app.
+    distance: '{km} km'
+    duration: '{hours, plural, =0 {} other {# h }}{minutes} min'
+    points: '{count, plural, one {# point} other {# points}}'
+    delete_confirm: 'Delete the track "{name}"?'
+    flash:
+        deleted: The track has been deleted.

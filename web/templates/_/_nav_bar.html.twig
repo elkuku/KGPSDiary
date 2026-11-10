@@ -16,6 +16,9 @@
                         <a class="nav-link{{ app.request.attributes.get('_route') == 'app_waypoint_index' ? ' active' }}" href="{{ path('app_waypoint_index') }}">{{ 'nav.waypoints'|trans }}</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link{{ app.request.attributes.get('_route') starts with 'app_track' ? ' active' }}" href="{{ path('app_track_index') }}">{{ 'nav.tracks'|trans }}</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link{{ app.request.attributes.get('_route') starts with 'app_category' ? ' active' }}" href="{{ path('app_category_index') }}">{{ 'nav.categories'|trans }}</a>
                     </li>
                     <li class="nav-item">

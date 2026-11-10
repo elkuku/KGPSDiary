@@ -94,4 +94,21 @@
         <item quantity="one">%1$d of %2$d waypoints</item>
         <item quantity="other">%1$d of %2$d waypoints</item>
     </plurals>
+
+    <string name="recording_start">Record a track</string>
+    <string name="recording_stop">Stop</string>
+    <string name="recording_channel">Track recording</string>
+    <string name="recording_notification">Recording a track</string>
+    <string name="track_save_title">Save the track</string>
+    <string name="track_name">Name</string>
+    <string name="track_default_name">Track %1$s</string>
+    <string name="track_discard">Discard</string>
+    <string name="track_discard_text">Discard the recorded track? It cannot be restored.</string>
+    <string name="track_too_short">A track needs at least 2 points.</string>
+    <string name="track_saved">The track has been saved.</string>
+    <string name="track_not_saved">The track stays on the phone, try again: %1$s</string>
+    <plurals name="recording_status">
+        <item quantity="one">%1$s km · %2$d point</item>
+        <item quantity="other">%1$s km · %2$d points</item>
+    </plurals>
 </resources>

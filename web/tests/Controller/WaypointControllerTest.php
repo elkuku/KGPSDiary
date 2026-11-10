@@ -6,6 +6,7 @@ namespace App\Tests\Controller;
 
 use App\Entity\Category;
 use App\Entity\Tag;
+use App\Entity\Track;
 use App\Entity\User;
 use App\Entity\Waypoint;
 use App\Repository\UserRepository;
@@ -32,7 +33,7 @@ class WaypointControllerTest extends WebTestCase
 
     protected function tearDown(): void
     {
-        foreach (['Photo', 'Waypoint', 'Category', 'Tag'] as $entity) {
+        foreach (['Photo', 'Waypoint', 'Category', 'Tag', 'Track'] as $entity) {
             $this->entityManager()->createQuery(\sprintf('DELETE FROM App\Entity\%s', $entity))->execute();
         }
 
@@ -264,6 +265,37 @@ class WaypointControllerTest extends WebTestCase
 
         $this->client->request('GET', '/waypoints?q=nowhere');
         self::assertSelectorTextContains('main', 'No waypoint matches the search.');
+    }
+
+    public function testListsTracksAndDrawsThemOnTheMap(): void
+    {
+        $track = new Track()
+            ->setName('Walk to the market')
+            ->setPoints([[0.0, -78.5, 1_793_000_000], [0.01, -78.5, 1_793_000_600]])
+            ->setOwner($this->user('user'));
+        $this->entityManager()->persist($track);
+        $theirs = new Track()->setName('Secret walk')->setPoints([[1, 1, 1_793_000_000], [2, 2, 1_793_000_100]])->setOwner($this->user('admin'));
+        $this->entityManager()->persist($theirs);
+        $this->entityManager()->flush();
+
+        $this->client->loginUser($this->user('user'));
+
+        $crawler = $this->client->request('GET', '/tracks');
+        self::assertSelectorTextContains('.list-group', 'Walk to the market');
+        self::assertSelectorTextContains('.list-group', '1.11 km');
+        self::assertSelectorTextContains('.list-group', '10 min');
+        self::assertSelectorTextNotContains('main', 'Secret walk');
+
+        $this->client->request('GET', '/map/tracks.geojson');
+        $json = \json_decode((string) $this->client->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($json);
+        self::assertEquals([[-78.5, 0.0], [-78.5, 0.01]], $json['features'][0]['geometry']['coordinates'] ?? null);
+        self::assertCount(1, (array) $json['features']);
+
+        $this->client->submit($crawler->selectButton('Delete')->form());
+        self::assertResponseRedirects('/tracks');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('main', 'No tracks yet.');
     }
 
     public function testThePagesAreTranslated(): void

@@ -62,6 +62,25 @@ data class WaypointInput(
     val tags: List<String>,
 )
 
+/**
+ * A recorded track of `GET /api/tracks`. [points] are [latitude, longitude, time] with the time
+ * in Unix seconds; [distance] is in meters.
+ */
+@Serializable
+data class Track(
+    val id: Int,
+    val name: String,
+    val points: List<List<Double>> = emptyList(),
+    val startedAt: String = "",
+    val endedAt: String = "",
+    val distance: Double = 0.0,
+    val pointCount: Int = 0,
+)
+
+/** The body of `POST /api/tracks`: each point as [latitude, longitude, time], the time a whole number. */
+@Serializable
+data class TrackInput(val name: String, val points: List<kotlinx.serialization.json.JsonArray>)
+
 /** One page of a Hydra collection. */
 @Serializable
 internal data class CollectionPage<T>(val member: List<T> = emptyList(), val view: CollectionView? = null)

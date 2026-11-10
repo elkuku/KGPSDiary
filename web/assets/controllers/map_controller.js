@@ -14,6 +14,7 @@ export default class extends Controller {
     static values = {
         token: String,
         featuresUrl: String,
+        tracksUrl: String,
         newUrl: String,
         center: Array,
         labels: Object,
@@ -58,6 +59,8 @@ export default class extends Controller {
             this.showMessage(this.labelsValue.loadFailed, 'danger');
             return;
         }
+
+        await this.loadTracks();
 
         this.features = data.features;
         this.map.addSource(SOURCE, { type: 'geojson', data: this.filtered(), cluster: true, clusterRadius: 40, clusterMaxZoom: 13 });
@@ -104,6 +107,27 @@ export default class extends Controller {
             const bounds = new mapboxgl.LngLatBounds();
             data.features.forEach((feature) => bounds.extend(feature.geometry.coordinates));
             this.map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 0 });
+        }
+    }
+
+    /** The recorded tracks as lines, under the waypoints. */
+    async loadTracks() {
+        if (!this.tracksUrlValue) return;
+
+        try {
+            const response = await fetch(this.tracksUrlValue, { headers: { Accept: 'application/geo+json' } });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const tracks = await response.json();
+            this.map.addSource('tracks', { type: 'geojson', data: tracks });
+            this.map.addLayer({
+                id: 'tracks',
+                type: 'line',
+                source: 'tracks',
+                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                paint: { 'line-color': '#6a1b9a', 'line-width': 4, 'line-opacity': 0.8 },
+            });
+        } catch (error) {
+            console.error(error);
         }
     }
 

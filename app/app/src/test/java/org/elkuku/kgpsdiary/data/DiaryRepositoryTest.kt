@@ -46,6 +46,7 @@ class DiaryRepositoryTest {
         "/api/waypoints" to """{"member":[{"id":1,"title":"From the server","latitude":0.0,"longitude":0.0}]}""",
         "/api/categories" to """{"member":[{"id":3,"name":"Food","color":"#1565c0"}]}""",
         "/api/tags" to """{"member":[{"id":7,"name":"Lunch"}]}""",
+        "/api/tracks" to """{"member":[{"id":4,"name":"Walk","points":[[0.0,-78.5,1793000000],[0.01,-78.5,1793000600]],"distance":1111.9}]}""",
     )
 
     private fun repository(auth: CountingAuth = CountingAuth()): Pair<DiaryRepository, SessionManager> {
@@ -77,6 +78,8 @@ class DiaryRepositoryTest {
         assertEquals(listOf("From the server"), saved.waypoints.map { it.title })
         assertEquals(listOf("Food"), saved.categories.map { it.name })
         assertEquals(listOf("Lunch"), saved.tags.map { it.name })
+        assertEquals(listOf("Walk"), saved.tracks.map { it.name })
+        assertEquals(listOf(4), diary.tracks.value.map { it.id })
         assertEquals(saved.savedAt, diary.syncedAt.value)
     }
 

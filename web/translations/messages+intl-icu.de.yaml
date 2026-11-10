@@ -1,4 +1,5 @@
 nav:
+    tracks: Tracks
     waypoints: Wegpunkte
     categories: Kategorien
     tags: Tags
@@ -92,3 +93,13 @@ list:
     found: '{found} von {all, plural, one {# Wegpunkt} other {# Wegpunkten}}'
     none: Du hast noch keine Wegpunkte. Lege einen auf der Karte an.
     nothing_found: Kein Wegpunkt passt zur Suche.
+track:
+    title: Tracks
+    intro: Tracks werden mit der App aufgezeichnet. Auf der Karte sind sie die violetten Linien.
+    none: Noch keine Tracks. Zeichne einen mit der App auf.
+    distance: '{km} km'
+    duration: '{hours, plural, =0 {} other {# Std. }}{minutes} Min.'
+    points: '{count, plural, one {# Punkt} other {# Punkte}}'
+    delete_confirm: 'Den Track „{name}“ löschen?'
+    flash:
+        deleted: Der Track wurde gelöscht.

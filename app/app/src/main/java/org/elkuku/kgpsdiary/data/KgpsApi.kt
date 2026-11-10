@@ -121,6 +121,18 @@ class KgpsApi @Inject constructor(
 
     suspend fun deletePhoto(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/photos/$id")
 
+    suspend fun tracks(idToken: String): ApiResult<List<Track>> = all(idToken, "/api/tracks")
+
+    suspend fun createTrack(idToken: String, input: TrackInput): ApiResult<Track> = request {
+        client.post("$root/api/tracks") {
+            auth(idToken)
+            contentType(LdJson)
+            setBody(input)
+        }
+    }
+
+    suspend fun deleteTrack(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/tracks/$id")
+
     private suspend fun delete(idToken: String, path: String): ApiResult<Unit> =
         when (val result = send { client.delete("$root$path") { auth(idToken) } }) {
             is ApiResult.Success -> ApiResult.Success(Unit)

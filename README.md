@@ -10,6 +10,8 @@ visit, a category, tags and photos, and see them on a map, in the Android app an
 - **Categories and tags:** a category colors the waypoint's marker, tags help you find it again;
   both filter the map.
 - **Photos:** up to 50 per waypoint, scaled and stored without their location data.
+- **Tracks:** record where you walk with the app, also with the screen off; see your tracks on
+  both maps.
 - **List and search:** all waypoints, newest visit first, searched by title, description,
   category and tags.
 - **Offline:** the app keeps your diary on the phone and shows it without a connection.

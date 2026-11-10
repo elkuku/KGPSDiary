@@ -96,4 +96,22 @@
         <item quantity="many">%1$d de %2$d puntos</item>
         <item quantity="other">%1$d de %2$d puntos</item>
     </plurals>
+
+    <string name="recording_start">Grabar un recorrido</string>
+    <string name="recording_stop">Detener</string>
+    <string name="recording_channel">Grabación de recorridos</string>
+    <string name="recording_notification">Grabando un recorrido</string>
+    <string name="track_save_title">Guardar el recorrido</string>
+    <string name="track_name">Nombre</string>
+    <string name="track_default_name">Recorrido %1$s</string>
+    <string name="track_discard">Descartar</string>
+    <string name="track_discard_text">¿Descartar el recorrido grabado? No se puede recuperar.</string>
+    <string name="track_too_short">Un recorrido necesita al menos 2 puntos.</string>
+    <string name="track_saved">El recorrido se ha guardado.</string>
+    <string name="track_not_saved">El recorrido queda en el teléfono, inténtalo de nuevo: %1$s</string>
+    <plurals name="recording_status">
+        <item quantity="one">%1$s km · %2$d punto</item>
+        <item quantity="many">%1$s km · %2$d puntos</item>
+        <item quantity="other">%1$s km · %2$d puntos</item>
+    </plurals>
 </resources>

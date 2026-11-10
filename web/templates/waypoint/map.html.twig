@@ -12,6 +12,7 @@
     <div {{ stimulus_controller('map', {
              token: mapbox_token,
              featuresUrl: path('app_waypoint_features'),
+             tracksUrl: path('app_track_features'),
              newUrl: path('app_waypoint_new'),
              center: center,
              labels: {

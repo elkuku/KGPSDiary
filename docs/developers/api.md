@@ -34,6 +34,8 @@ In dev, with `APP_FAKE_GOOGLE_TOKENS=1` in `web/.env.local`, fake tokens of the 
 | `GET`, `PATCH`, `DELETE` | `/api/tags/{id}` | Read, change or delete one. Deleting removes it from its waypoints. |
 | `POST` | `/api/waypoints/{id}/photos` | Add a photo: the image in the multipart field `file` (JPEG, PNG, WebP or AVIF, up to 20 MB). `201` with the photo, `422` with a `detail` for anything else. |
 | `GET`, `DELETE` | `/api/photos/{id}` | A photo's data; delete it with its files. |
+| `GET`, `POST` | `/api/tracks` | The user's recorded tracks, newest first; upload one. |
+| `GET`, `PATCH`, `DELETE` | `/api/tracks/{id}` | Read, rename (only the `name` changes) or delete one. |
 | `GET` | `/api/photos/{id}/file` | The photo as JPEG, at most 2048 pixels; `?size=thumb` for the 400 pixel thumbnail. Needs the bearer token too. |
 
 Users only ever see their own records, admins included: another user's waypoint, category or tag is
@@ -94,3 +96,13 @@ default `#2e7d32`) and an `icon` (a [Material Symbols](https://fonts.google.com/
 ```shell
 curl -H "Authorization: Bearer $ID_TOKEN" -H "Accept: application/ld+json" https://kgpsdiary.elkuku.dev/api/me
 ```
+
+## Tracks
+
+```json
+{ "name": "Walk to the market", "points": [[-0.2147, -78.5075, 1793000000], [-0.2152, -78.5077, 1793000002]] }
+```
+
+Each point is `[latitude, longitude, time]`: WGS 84 degrees and the time in whole Unix seconds, in
+the order recorded; at least 2, at most 50000 points. The server stores them with 6 decimals and
+derives `startedAt`, `endedAt`, `distance` (meters along the points) and `pointCount`.

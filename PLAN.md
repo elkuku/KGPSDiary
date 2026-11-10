@@ -118,8 +118,9 @@ The server verifies every token against the Web client ID and requires a verifie
 | M6 ✅ | Photos | Upload, thumbnails, galleries, and deleting, on both sides. |
 | M7 (read cache ✅) | Offline | Room cache, and later an offline queue for writes. |
 | M8 ✅ (deployment prepared, not done) | Polish | List and search, translations (en, de, es?), app icon, a release build, deployment of the web app, and docs. |
+| M9 ✅ | Track recording | Record GPS tracks in the app (foreground service, points kept on the phone), upload them, show them on both maps; tracks page on the web. |
 
-Later ideas: GPX/GeoJSON import and export, recorded tracks, sharing a waypoint by link, offline map regions.
+Later ideas: GPX/GeoJSON import and export, sharing a waypoint by link, offline map regions.
 
 ## 7. Decisions
 

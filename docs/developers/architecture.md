@@ -23,6 +23,7 @@ Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 | Map | `ui/map/` | Mapbox Maps SDK (Compose extension): clustered markers in category colors, a long press adds a waypoint there, the + button one at the map's center, a tap shows a detail sheet. |
 | Categories and tags | `ui/manage/` | Adding, renaming, recoloring (12 marker colors) and deleting categories and tags, with their waypoint counts. The map filters by one category and one tag (chips above the map). |
 | List | `ui/list/`, `searchWaypoints()` in `data/Models.kt` | All waypoints, newest visit first, searched in title, description, category and tags (all words, ignoring case and accents); a tap shows the waypoint on the map. |
+| Tracks | `track/`, `ui/map/Tracks.kt` | Recording: `RecordingService` (a foreground service of type location) gets GPS fixes from Android's `LocationManager` and `TrackRecorder` stores each point in Room (`recorded_point`) at once, so a recording survives the app being killed. Stopped, the track is uploaded with a name; if that fails it stays on the phone. The map draws saved tracks purple and the recording red; at night (dark mode) lighter and unlit. |
 | Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category, tags and photos (Android photo picker; picked photos are uploaded once the waypoint is saved). |
 | Photos | `ui/photo/`, `data/PhotoScaler.kt`, `KGPSDiaryApplication.kt` | Thumbnails and a full screen viewer with Coil, whose image loader adds the bearer token for the server; photos are scaled to 2048 pixels on the phone before the upload. |
 | UI | `ui/` | `MainViewModel` (session), `AppNavHost` (type-safe Navigation Compose), the sign-in and profile screens. |
@@ -50,6 +51,7 @@ build), and API Platform for the [API](api.md).
 |---|---|---|
 | Entities | `src/Entity/` | `User`, and the diary: `Waypoint`, `Category`, `Tag`, each owned by one user. |
 | Owner scoping | `src/Doctrine/`, `src/State/`, `src/Security/Voter/`, `src/Validator/` | Users only see and change their own records, admins too. |
+| Tracks | `src/Entity/Track.php`, `src/Track/`, `src/Controller/Track/` | Tracks with their points as JSON; `TrackGeometry` validates them and measures the distance. `/tracks` lists them, the web map draws them as lines. |
 | Photos | `src/Photo/`, `src/Controller/Api/`, `src/Controller/Photo/` | `PhotoStorage` (GD: upright, scaled, JPEG without metadata, in `var/photos`), `PhotoUploader`, files for the API and the web, deleting files with their photos. |
 | Security | `src/Security/` | `GoogleIdentityAuthenticator` (web button, with Google's CSRF cookie), `GoogleApiTokenAuthenticator` (API bearer token), both through `GoogleIdTokenVerifier` and `GoogleUserResolver`. |
 | API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |

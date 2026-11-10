@@ -2,6 +2,11 @@ package org.elkuku.kgpsdiary.ui.map
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
+import com.mapbox.maps.extension.compose.style.standard.rememberStandardStyleState
+import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
+import com.mapbox.maps.extension.compose.style.standard.LightPresetValue
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -121,6 +126,15 @@ fun MapScreen(
         if (locationGranted) viewportState.transitionToFollowPuckState()
     }
 
+    // Recording needs the precise location, and from Android 13 a notification for the service
+    val recordingPermissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+        if (grants[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+            locationGranted = true
+            viewModel.startRecording()
+            viewportState.transitionToFollowPuckState()
+        }
+    }
+
     LaunchedEffect(Unit) { viewModel.load(context) }
     // Where the map shows a waypoint chosen in the list; applied once the map view exists
     var focusPoint by remember { mutableStateOf<Point?>(null) }
@@ -170,6 +184,19 @@ fun MapScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (!state.recording && !state.unsavedTrack) {
+                    SmallFloatingActionButton(onClick = {
+                        recordingPermissions.launch(
+                            listOfNotNull(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.POST_NOTIFICATIONS else null,
+                            ).toTypedArray(),
+                        )
+                    }) {
+                        Icon(painterResource(R.drawable.ic_record), stringResource(R.string.recording_start), tint = Color(0xFFD50000))
+                    }
+                }
                 SmallFloatingActionButton(onClick = {
                     if (locationGranted) {
                         viewportState.transitionToFollowPuckState()
@@ -191,9 +218,16 @@ fun MapScreen(
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
+            // Mapbox's Standard style, in its night light when the phone is in dark mode
+            val dark = isSystemInDarkTheme()
+            val styleState = rememberStandardStyleState()
+            LaunchedEffect(dark) {
+                styleState.configurationsState.lightPreset = if (dark) LightPresetValue.NIGHT else LightPresetValue.DAY
+            }
             MapboxMap(
                 modifier = Modifier.fillMaxSize(),
                 mapViewportState = viewportState,
+                style = { MapboxStandardStyle(standardStyleState = styleState) },
                 onMapLongClickListener = { point ->
                     onAdd(point.latitude(), point.longitude())
                     true
@@ -211,7 +245,17 @@ fun MapScreen(
                         locationPuck = createDefault2DPuck(withBearing = true)
                     }
                 }
+                TrackLines(state.tracks, state.recordedPoints, night = dark)
                 WaypointMarkers(state.visibleWaypoints, viewportState, onClick = viewModel::select)
+            }
+
+            if (state.recording) {
+                val chips = state.categories.isNotEmpty() || state.tags.isNotEmpty()
+                RecordingBar(
+                    state.recordedPoints,
+                    onStop = viewModel::stopRecording,
+                    modifier = Modifier.align(Alignment.TopStart).padding(top = if (chips) 80.dp else 28.dp),
+                )
             }
 
             if (state.categories.isNotEmpty() || state.tags.isNotEmpty()) {
@@ -235,6 +279,15 @@ fun MapScreen(
                 OfflineNotice(state.syncedAt, onRetry = { viewModel.load(context) }, modifier = Modifier.align(Alignment.BottomStart))
             }
         }
+    }
+
+    if (state.unsavedTrack) {
+        SaveTrackDialog(
+            points = state.recordedPoints,
+            saving = state.savingTrack,
+            onSave = { name -> viewModel.saveTrack(context, name) },
+            onDiscard = viewModel::discardRecording,
+        )
     }
 
     state.selected?.let { waypoint ->
@@ -350,6 +403,8 @@ private fun WaypointMarkers(waypoints: List<Waypoint>, viewportState: MapViewpor
     ) {
         circleStrokeColor = Color.White
         circleStrokeWidth = 2.0
+        // Unlit: the Standard style's night light would darken the category colors
+        circleEmissiveStrength = 1.0
         interactionsState = interactions
     }
 }

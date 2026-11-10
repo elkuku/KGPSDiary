@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'track.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h2 class="mt-4">{{ 'track.title'|trans }}</h2>
+    <p class="text-body-secondary">{{ 'track.intro'|trans }}</p>
+
+    {% if tracks is empty %}
+        <p class="fst-italic text-body-secondary">{{ 'track.none'|trans }}</p>
+    {% else %}
+        <ul class="list-group mb-4">
+            {% for track in tracks %}
+                {% set minutes = ((track.endedAt.timestamp - track.startedAt.timestamp) / 60)|round %}
+                <li class="list-group-item d-flex flex-wrap align-items-center gap-3">
+                    <span class="flex-grow-1">
+                        <strong>{{ track.name }}</strong>
+                        <small class="d-block text-body-secondary">
+                            {{ track.startedAt|date('Y-m-d H:i') }} ·
+                            {{ 'track.distance'|trans({km: (track.distance / 1000)|number_format(2)}) }} ·
+                            {{ 'track.duration'|trans({hours: (minutes / 60)|round(0, 'floor'), minutes: minutes % 60}) }} ·
+                            {{ 'track.points'|trans({count: track.pointCount}) }}
+                        </small>
+                    </span>
+                    <a class="btn btn-sm btn-outline-secondary"
+                       href="{{ path('app_waypoint_map', {latitude: track.points[0][0], longitude: track.points[0][1]}) }}">{{ 'waypoint.show_on_map'|trans }}</a>
+                    <form method="post" action="{{ path('app_track_delete', {id: track.id}) }}"
+                          onsubmit="return confirm({{ 'track.delete_confirm'|trans({name: track.name})|json_encode|e('html_attr') }});">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-track-' ~ track.id) }}">
+                        <button class="btn btn-sm btn-outline-danger">{{ 'waypoint.delete'|trans }}</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

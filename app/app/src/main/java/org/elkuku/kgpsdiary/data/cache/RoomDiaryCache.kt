@@ -14,7 +14,10 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.elkuku.kgpsdiary.data.Category
 import org.elkuku.kgpsdiary.data.Tag
+import org.elkuku.kgpsdiary.data.Track
 import org.elkuku.kgpsdiary.data.Waypoint
+import org.elkuku.kgpsdiary.track.RecordedPoint
+import org.elkuku.kgpsdiary.track.RecordedPointDao
 
 /**
  * One cached record as the API's JSON: the server's models change without a database migration
@@ -42,9 +45,11 @@ interface CachedRecordDao {
     }
 }
 
-@Database(entities = [CachedRecord::class], version = 1, exportSchema = false)
+@Database(entities = [CachedRecord::class, RecordedPoint::class], version = 2, exportSchema = false)
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun cachedRecords(): CachedRecordDao
+
+    abstract fun recordedPoints(): RecordedPointDao
 
     companion object {
         const val NAME = "diary.db"
@@ -63,6 +68,7 @@ class RoomDiaryCache @Inject constructor(private val database: DiaryDatabase) : 
             categories = records[CATEGORY].decode(Category.serializer()).sortedBy { it.name.lowercase() },
             tags = records[TAG].decode(Tag.serializer()).sortedBy { it.name.lowercase() },
             savedAt = Instant.ofEpochMilli(savedAt),
+            tracks = records[TRACK].decode(Track.serializer()).sortedByDescending { it.startedAt },
         )
     }
 
@@ -72,6 +78,7 @@ class RoomDiaryCache @Inject constructor(private val database: DiaryDatabase) : 
             diary.waypoints.map { CachedRecord(owner, WAYPOINT, it.id.toLong(), json.encodeToString(Waypoint.serializer(), it)) } +
                 diary.categories.map { CachedRecord(owner, CATEGORY, it.id.toLong(), json.encodeToString(Category.serializer(), it)) } +
                 diary.tags.map { CachedRecord(owner, TAG, it.id.toLong(), json.encodeToString(Tag.serializer(), it)) } +
+                diary.tracks.map { CachedRecord(owner, TRACK, it.id.toLong(), json.encodeToString(Track.serializer(), it)) } +
                 CachedRecord(owner, META, 0, diary.savedAt.toEpochMilli().toString()),
         )
     }
@@ -92,6 +99,7 @@ class RoomDiaryCache @Inject constructor(private val database: DiaryDatabase) : 
         const val WAYPOINT = "waypoint"
         const val CATEGORY = "category"
         const val TAG = "tag"
+        const val TRACK = "track"
         const val META = "meta"
 
         val json = Json { ignoreUnknownKeys = true }
