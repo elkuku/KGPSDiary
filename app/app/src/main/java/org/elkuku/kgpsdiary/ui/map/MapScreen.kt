@@ -10,16 +10,14 @@ import androidx.core.net.toUri
 import com.mapbox.maps.extension.compose.style.standard.rememberStandardStyleState
 import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
 import com.mapbox.maps.extension.compose.style.standard.LightPresetValue
-import androidx.compose.foundation.isSystemInDarkTheme
+import com.mapbox.maps.extension.compose.style.BooleanValue
+import org.elkuku.kgpsdiary.ui.settings.SettingsViewModel
+import org.elkuku.kgpsdiary.ui.theme.LocalDarkTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import org.elkuku.kgpsdiary.ui.manage.ColorDot
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,17 +30,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -51,7 +46,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -92,6 +86,16 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.track.GpxShare
 import org.elkuku.kgpsdiary.ui.tracks.TrackListViewModel
@@ -124,10 +128,13 @@ fun MapScreen(
     onEdit: (id: Int) -> Unit,
     onProfile: () -> Unit,
     onManage: () -> Unit,
+    onSettings: () -> Unit,
     viewModel: MapViewModel = hiltViewModel(),
     // A tap on a track shows the same actions as in the track list
     trackActions: TrackListViewModel = hiltViewModel(),
+    settings: SettingsViewModel = hiltViewModel(),
 ) {
+    val appSettings by settings.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val trackState by trackActions.state.collectAsStateWithLifecycle()
@@ -195,133 +202,151 @@ fun MapScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
-                actions = {
-                    IconButton(onClick = onTracks) {
-                        Icon(painterResource(R.drawable.ic_timeline), stringResource(R.string.tracks_title))
-                    }
-                    IconButton(onClick = onList) {
-                        Icon(painterResource(R.drawable.ic_list), stringResource(R.string.list_title))
-                    }
-                    IconButton(onClick = { viewModel.load(context) }, enabled = !state.loading) {
-                        Icon(painterResource(R.drawable.ic_refresh), stringResource(R.string.refresh))
-                    }
-                    IconButton(onClick = onManage) {
-                        Icon(painterResource(R.drawable.ic_label), stringResource(R.string.manage_title))
-                    }
-                    IconButton(onClick = onProfile) {
-                        Icon(painterResource(R.drawable.ic_person), stringResource(R.string.profile))
-                    }
-                },
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    fun closeDrawerThen(action: () -> Unit) {
+        scope.launch { drawerState.close() }
+        action()
+    }
+    BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        // A swipe on the map moves the map: the drawer opens with the menu button only
+        gesturesEnabled = drawerState.isOpen,
+        drawerContent = {
+            MapDrawer(
+                state = state,
+                onTracks = { closeDrawerThen(onTracks) },
+                onList = { closeDrawerThen(onList) },
+                onRefresh = { closeDrawerThen { viewModel.load(context) } },
+                onManage = { closeDrawerThen(onManage) },
+                onProfile = { closeDrawerThen(onProfile) },
+                onSettings = { closeDrawerThen(onSettings) },
+                onCategory = viewModel::filterCategory,
+                onTag = viewModel::filterTag,
+                onClearFilters = viewModel::clearFilters,
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (!state.recording && !state.unsavedTrack) {
+    ) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            floatingActionButton = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (!state.recording && !state.unsavedTrack) {
+                        SmallFloatingActionButton(onClick = {
+                            recordingPermissions.launch(
+                                listOfNotNull(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.POST_NOTIFICATIONS else null,
+                                ).toTypedArray(),
+                            )
+                        }) {
+                            Icon(painterResource(R.drawable.ic_record), stringResource(R.string.recording_start), tint = Color(0xFFD50000))
+                        }
+                    }
                     SmallFloatingActionButton(onClick = {
-                        recordingPermissions.launch(
-                            listOfNotNull(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.POST_NOTIFICATIONS else null,
-                            ).toTypedArray(),
-                        )
+                        if (locationGranted) {
+                            viewportState.transitionToFollowPuckState()
+                        } else {
+                            permissionLauncher.launch(
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                            )
+                        }
                     }) {
-                        Icon(painterResource(R.drawable.ic_record), stringResource(R.string.recording_start), tint = Color(0xFFD50000))
+                        Icon(painterResource(R.drawable.ic_my_location), stringResource(R.string.map_my_location))
+                    }
+                    FloatingActionButton(onClick = {
+                        val center = viewportState.cameraState?.center ?: return@FloatingActionButton
+                        onAdd(center.latitude(), center.longitude())
+                    }) {
+                        Icon(painterResource(R.drawable.ic_add), stringResource(R.string.map_add_here))
                     }
                 }
-                SmallFloatingActionButton(onClick = {
-                    if (locationGranted) {
-                        viewportState.transitionToFollowPuckState()
-                    } else {
-                        permissionLauncher.launch(
-                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            },
+        ) { padding ->
+            // Edge to edge: the map goes under the status bar
+            Box(Modifier.fillMaxSize().padding(bottom = padding.calculateBottomPadding())) {
+                // Mapbox's Standard style, in its night light when the phone is in dark mode
+                val dark = LocalDarkTheme.current
+                val styleState = rememberStandardStyleState()
+                LaunchedEffect(dark) {
+                    styleState.configurationsState.lightPreset = if (dark) LightPresetValue.NIGHT else LightPresetValue.DAY
+                }
+                LaunchedEffect(appSettings.mapStyle) {
+                    styleState.configurationsState.showPointOfInterestLabels = BooleanValue(appSettings.mapStyle.showPointsOfInterest)
+                }
+                MapboxMap(
+                    modifier = Modifier.fillMaxSize(),
+                    mapViewportState = viewportState,
+                    style = { MapboxStandardStyle(standardStyleState = styleState) },
+                    onMapLongClickListener = { point ->
+                        onAdd(point.latitude(), point.longitude())
+                        true
+                    },
+                    // Beside the menu button, and the compass below the status bar
+                    scaleBar = { ScaleBar(contentPadding = PaddingValues(start = 72.dp, top = statusBarTop + 22.dp)) },
+                    compass = { Compass(contentPadding = PaddingValues(top = statusBarTop + 8.dp, end = 8.dp)) },
+                ) {
+                    MapEffect(focusPoints) { mapView ->
+                        val points = focusPoints?.takeIf { it.isNotEmpty() } ?: return@MapEffect
+                        focusPoints = null
+                        // Mapbox fits the points into the map's real size, once it knows it; clear of the
+                        // menu button at the top and the buttons on the right
+                        val dp = mapView.resources.displayMetrics.density.toDouble()
+                        mapView.mapboxMap.cameraForCoordinates(
+                            points,
+                            CameraOptions.Builder().build(),
+                            EdgeInsets(120 * dp, 48 * dp, 64 * dp, 88 * dp),
+                            FOCUS_MAX_ZOOM,
+                            null,
+                        ) { camera -> mapView.mapboxMap.setCamera(camera) }
+                    }
+                    MapEffect(locationGranted) { mapView ->
+                        mapView.location.updateSettings {
+                            enabled = locationGranted
+                            locationPuck = createDefault2DPuck(withBearing = true)
+                        }
+                    }
+                    TrackLines(state.tracks, state.recordedPoints, night = dark, onClick = trackActions::select)
+                    WaypointMarkers(state.visibleWaypoints, viewportState, onClick = viewModel::select)
+                }
+
+                Column(Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp)) {
+                    SmallFloatingActionButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(painterResource(R.drawable.ic_menu), stringResource(R.string.menu_open))
+                    }
+                    if (state.filtered) {
+                        // The filters are in the menu: the map says how much they leave out (below the
+                        // button, as the scale bar is beside it)
+                        AssistChip(
+                            onClick = { scope.launch { drawerState.open() } },
+                            label = { Text(stringResource(R.string.map_shown, state.visibleWaypoints.size, state.waypoints.size)) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.surface),
                         )
                     }
-                }) {
-                    Icon(painterResource(R.drawable.ic_my_location), stringResource(R.string.map_my_location))
-                }
-                FloatingActionButton(onClick = {
-                    val center = viewportState.cameraState?.center ?: return@FloatingActionButton
-                    onAdd(center.latitude(), center.longitude())
-                }) {
-                    Icon(painterResource(R.drawable.ic_add), stringResource(R.string.map_add_here))
-                }
-            }
-        },
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            // Mapbox's Standard style, in its night light when the phone is in dark mode
-            val dark = isSystemInDarkTheme()
-            val styleState = rememberStandardStyleState()
-            LaunchedEffect(dark) {
-                styleState.configurationsState.lightPreset = if (dark) LightPresetValue.NIGHT else LightPresetValue.DAY
-            }
-            MapboxMap(
-                modifier = Modifier.fillMaxSize(),
-                mapViewportState = viewportState,
-                style = { MapboxStandardStyle(standardStyleState = styleState) },
-                onMapLongClickListener = { point ->
-                    onAdd(point.latitude(), point.longitude())
-                    true
-                },
-            ) {
-                MapEffect(focusPoints) { mapView ->
-                    val points = focusPoints?.takeIf { it.isNotEmpty() } ?: return@MapEffect
-                    focusPoints = null
-                    // Mapbox fits the points into the map's real size, once it knows it; clear of the
-                    // filter chips at the top and the buttons on the right
-                    val dp = mapView.resources.displayMetrics.density.toDouble()
-                    mapView.mapboxMap.cameraForCoordinates(
-                        points,
-                        CameraOptions.Builder().build(),
-                        EdgeInsets(120 * dp, 48 * dp, 64 * dp, 88 * dp),
-                        FOCUS_MAX_ZOOM,
-                        null,
-                    ) { camera -> mapView.mapboxMap.setCamera(camera) }
-                }
-                MapEffect(locationGranted) { mapView ->
-                    mapView.location.updateSettings {
-                        enabled = locationGranted
-                        locationPuck = createDefault2DPuck(withBearing = true)
+                    if (state.recording) {
+                        RecordingBar(state.recordedPoints, onStop = viewModel::stopRecording, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
-                TrackLines(state.tracks, state.recordedPoints, night = dark, onClick = trackActions::select)
-                WaypointMarkers(state.visibleWaypoints, viewportState, onClick = viewModel::select)
-            }
 
-            if (state.recording) {
-                val chips = state.categories.isNotEmpty() || state.tags.isNotEmpty()
-                RecordingBar(
-                    state.recordedPoints,
-                    onStop = viewModel::stopRecording,
-                    modifier = Modifier.align(Alignment.TopStart).padding(top = if (chips) 80.dp else 28.dp),
+                // The map's center, where the add button puts a waypoint
+                Icon(
+                    painterResource(R.drawable.ic_add),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.Center).size(20.dp),
+                    tint = Color(0xAA000000),
                 )
-            }
 
-            if (state.categories.isNotEmpty() || state.tags.isNotEmpty()) {
-                // Below Mapbox's scale bar
-                FilterChips(state, viewModel::filterCategory, viewModel::filterTag, Modifier.align(Alignment.TopStart).padding(top = 28.dp))
-            }
+                if (state.loading) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.BottomCenter))
+                }
 
-            // The map's center, where the add button puts a waypoint
-            Icon(
-                painterResource(R.drawable.ic_add),
-                contentDescription = null,
-                modifier = Modifier.align(Alignment.Center).size(20.dp),
-                tint = Color(0xAA000000),
-            )
-
-            if (state.loading) {
-                LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.BottomCenter))
-            }
-
-            if (state.offline) {
-                OfflineNotice(state.syncedAt, onRetry = { viewModel.load(context) }, modifier = Modifier.align(Alignment.BottomStart))
+                if (state.offline) {
+                    OfflineNotice(state.syncedAt, onRetry = { viewModel.load(context) }, modifier = Modifier.align(Alignment.BottomStart))
+                }
             }
         }
     }
@@ -391,43 +416,6 @@ private fun OfflineNotice(syncedAt: Instant?, onRetry: () -> Unit, modifier: Mod
                 modifier = Modifier.weight(1f, fill = false),
             )
             TextButton(onClick = onRetry) { Text(stringResource(R.string.retry)) }
-        }
-    }
-}
-
-/** One chip per category (with its color) and tag; a selected chip filters the map. */
-@Composable
-private fun FilterChips(state: MapUiState, onCategory: (Int) -> Unit, onTag: (Int) -> Unit, modifier: Modifier = Modifier) {
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (state.filtered) {
-            item {
-                AssistChip(
-                    onClick = {},
-                    label = { Text(stringResource(R.string.map_shown, state.visibleWaypoints.size, state.waypoints.size)) },
-                    colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                )
-            }
-        }
-        items(state.categories, key = { "c${it.id}" }) { category ->
-            FilterChip(
-                selected = category.id == state.categoryId,
-                onClick = { onCategory(category.id) },
-                label = { Text(category.name) },
-                leadingIcon = { ColorDot(category.color, 12) },
-                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-            )
-        }
-        items(state.tags, key = { "t${it.id}" }) { tag ->
-            FilterChip(
-                selected = tag.id == state.tagId,
-                onClick = { onTag(tag.id) },
-                label = { Text("#${tag.name}") },
-                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-            )
         }
     }
 }

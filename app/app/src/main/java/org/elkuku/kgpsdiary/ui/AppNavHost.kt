@@ -12,6 +12,7 @@ import org.elkuku.kgpsdiary.ui.edit.EditWaypointScreen
 import org.elkuku.kgpsdiary.ui.list.WaypointListScreen
 import org.elkuku.kgpsdiary.ui.manage.ManageScreen
 import org.elkuku.kgpsdiary.ui.map.MapScreen
+import org.elkuku.kgpsdiary.ui.settings.SettingsScreen
 import org.elkuku.kgpsdiary.ui.tracks.TrackListScreen
 
 @Serializable
@@ -32,6 +33,9 @@ object ListRoute
 
 @Serializable
 object TracksRoute
+
+@Serializable
+object SettingsRoute
 
 /** The saved-state key the list hands the map: the waypoint to show. */
 private const val FOCUS = "focus"
@@ -66,6 +70,7 @@ fun AppNavHost(
                 onEdit = { id -> navController.navigate(EditWaypointRoute(id = id)) },
                 onProfile = { navController.navigate(ProfileRoute) },
                 onManage = { navController.navigate(ManageRoute) },
+                onSettings = { navController.navigate(SettingsRoute) },
             )
         }
         composable<ListRoute> {
@@ -85,6 +90,9 @@ fun AppNavHost(
                 },
                 onBack = { navController.popBackStack() },
             )
+        }
+        composable<SettingsRoute> {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
         composable<ManageRoute> {
             ManageScreen(onBack = { navController.popBackStack() })

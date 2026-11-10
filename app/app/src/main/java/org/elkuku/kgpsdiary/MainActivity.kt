@@ -1,6 +1,12 @@
 package org.elkuku.kgpsdiary
 
+import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.SystemBarStyle
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.DisposableEffect
+import javax.inject.Inject
+import org.elkuku.kgpsdiary.settings.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,14 +34,33 @@ import org.elkuku.kgpsdiary.ui.theme.KGPSDiaryTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var settings: Settings
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            KGPSDiaryTheme {
+            val appSettings by settings.state.collectAsStateWithLifecycle()
+            val dark = appSettings.theme.isDark(isSystemInDarkTheme())
+            // The status and navigation bar icons follow the app's theme, not only the phone's
+            DisposableEffect(dark) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark },
+                    navigationBarStyle = SystemBarStyle.auto(LIGHT_SCRIM, DARK_SCRIM) { dark },
+                )
+                onDispose {}
+            }
+            KGPSDiaryTheme(darkTheme = dark) {
                 KGPSDiaryApp()
             }
         }
+    }
+
+    private companion object {
+        // As enableEdgeToEdge() has them by default
+        val LIGHT_SCRIM = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
+        val DARK_SCRIM = Color.argb(0x80, 0x1b, 0x1b, 0x1b)
     }
 }
 

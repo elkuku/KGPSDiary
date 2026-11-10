@@ -8,6 +8,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -16,6 +18,9 @@ private val Trail = Color(0xFFEF6C00)
 
 private val LightColors = lightColorScheme(primary = Forest, secondary = Trail)
 private val DarkColors = darkColorScheme(primary = Color(0xFF81C784), secondary = Color(0xFFFFB74D))
+
+/** Whether the app is dark: as the phone is set, or as chosen in the settings. */
+val LocalDarkTheme = staticCompositionLocalOf { false }
 
 @Composable
 fun KGPSDiaryTheme(
@@ -30,5 +35,7 @@ fun KGPSDiaryTheme(
         darkTheme -> DarkColors
         else -> LightColors
     }
-    MaterialTheme(colorScheme = colorScheme, content = content)
+    CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+        MaterialTheme(colorScheme = colorScheme, content = content)
+    }
 }

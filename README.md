@@ -16,6 +16,7 @@ visit, a category, tags and photos, and see them on a map, in the Android app an
   app opens; the title and description stay private.
 - **List and search:** all waypoints, newest visit first, searched by title, description,
   category and tags.
+- **Your way:** light or dark, and a quieter map without shops and restaurants.
 - **Offline:** the app keeps your diary on the phone and shows it without a connection.
 - **Private:** you sign in with Google and only ever see your own diary.
 - In English, German and Spanish.

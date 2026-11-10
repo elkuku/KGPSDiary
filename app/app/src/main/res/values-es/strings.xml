@@ -136,4 +136,16 @@
     </plurals>
     <string name="track_hide">Ocultar en el mapa</string>
     <string name="track_show">Volver a mostrar en el mapa</string>
+    <string name="menu_open">Menú</string>
+    <string name="filter_title">Filtro</string>
+    <string name="filter_title_shown">Filtro: %1$d de %2$d</string>
+    <string name="filter_clear">Quitar</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_system">Como el teléfono</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_map_style">Estilo del mapa</string>
+    <string name="settings_map_standard">Estándar</string>
+    <string name="settings_map_without_businesses">Estándar sin negocios</string>
 </resources>

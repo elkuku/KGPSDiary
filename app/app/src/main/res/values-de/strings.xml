@@ -131,4 +131,16 @@
     </plurals>
     <string name="track_hide">Auf der Karte ausblenden</string>
     <string name="track_show">Auf der Karte wieder einblenden</string>
+    <string name="menu_open">Menü</string>
+    <string name="filter_title">Filter</string>
+    <string name="filter_title_shown">Filter: %1$d von %2$d</string>
+    <string name="filter_clear">Zurücksetzen</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_theme_system">Wie das Telefon</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_map_style">Kartenstil</string>
+    <string name="settings_map_standard">Standard</string>
+    <string name="settings_map_without_businesses">Standard ohne Geschäfte</string>
 </resources>

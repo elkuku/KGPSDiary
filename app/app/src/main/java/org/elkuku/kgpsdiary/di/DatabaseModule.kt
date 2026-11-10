@@ -14,6 +14,8 @@ import org.elkuku.kgpsdiary.auth.SharedPreferencesAccountStore
 import org.elkuku.kgpsdiary.data.cache.DiaryCache
 import org.elkuku.kgpsdiary.data.cache.DiaryDatabase
 import org.elkuku.kgpsdiary.data.cache.RoomDiaryCache
+import org.elkuku.kgpsdiary.settings.SettingsStore
+import org.elkuku.kgpsdiary.settings.SharedPreferencesSettingsStore
 import org.elkuku.kgpsdiary.track.HiddenTrackStore
 import org.elkuku.kgpsdiary.track.SharedPreferencesHiddenTrackStore
 
@@ -28,6 +30,9 @@ abstract class DatabaseModule {
 
     @Binds
     abstract fun hiddenTrackStore(store: SharedPreferencesHiddenTrackStore): HiddenTrackStore
+
+    @Binds
+    abstract fun settingsStore(store: SharedPreferencesSettingsStore): SettingsStore
 
     companion object {
         @Provides

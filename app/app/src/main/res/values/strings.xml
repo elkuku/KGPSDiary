@@ -132,4 +132,16 @@
     </plurals>
     <string name="track_hide">Hide on the map</string>
     <string name="track_show">Show on the map again</string>
+    <string name="menu_open">Menu</string>
+    <string name="filter_title">Filter</string>
+    <string name="filter_title_shown">Filter: %1$d of %2$d</string>
+    <string name="filter_clear">Clear</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">As the phone</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_map_style">Map style</string>
+    <string name="settings_map_standard">Standard</string>
+    <string name="settings_map_without_businesses">Standard without businesses</string>
 </resources>
