@@ -98,6 +98,11 @@ dependencies {
     implementation(libs.mapbox.android)
     implementation(libs.mapbox.compose)
 
+    // The offline cache of the diary
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)

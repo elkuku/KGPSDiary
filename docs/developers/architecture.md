@@ -15,10 +15,11 @@ Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 | Area | Where | What |
 |---|---|---|
 | Sign-in | `auth/GoogleAuth.kt` | Credential Manager "Sign in with Google" with the **Web** client ID as `serverClientId`. Debug builds can use `FakeGoogleAuth` (`src/debug`). |
-| Session | `auth/SessionManager.kt` | The signed-in account; API calls with its token, refreshed silently and retried once on `401`. |
+| Session | `auth/SessionManager.kt`, `auth/AccountStore.kt` | The signed-in account (remembered on the phone, never a token) and API calls with its token, refreshed silently and retried once on `401`. When Google cannot be reached the app starts with the remembered account, and calls fail as offline instead of signing out. |
 | API client | `data/KgpsApi.kt` | Ktor client for the JSON-LD API; answers become `ApiResult`s with the server's messages. |
 | DI | `di/` | Hilt modules: the HTTP client and server URL, the Google sign-in per build type. |
-| Diary | `data/DiaryRepository.kt` | The user's waypoints, categories and tags as last loaded; saving and deleting go to the server first. |
+| Diary | `data/DiaryRepository.kt` | The user's waypoints, categories and tags: first as the phone kept them, then from the server; saving and deleting go to the server first, then into the lists and the cache. |
+| Offline cache | `data/cache/` | Room database (`diary.db`) with each record as the API's JSON, for one account at a time; deleted on sign-out. Without a connection the map shows it with an "Offline" notice. |
 | Map | `ui/map/` | Mapbox Maps SDK (Compose extension): clustered markers in category colors, a long press adds a waypoint there, the + button one at the map's center, a tap shows a detail sheet. |
 | Categories and tags | `ui/manage/` | Adding, renaming, recoloring (12 marker colors) and deleting categories and tags, with their waypoint counts. The map filters by one category and one tag (chips above the map). |
 | Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category, tags and photos (Android photo picker; picked photos are uploaded once the waypoint is saved). |

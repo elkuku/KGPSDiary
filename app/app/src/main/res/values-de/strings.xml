@@ -15,6 +15,10 @@
     <string name="role_user">Benutzer</string>
     <string name="role_admin">Administrator</string>
 
+    <string name="error_offline">Keine Verbindung zum Server.</string>
+    <string name="offline_saved_at">Offline: Stand vom %1$s</string>
+    <string name="offline_nothing_saved">Offline: auf diesem Telefon ist noch nichts gespeichert</string>
+    <string name="retry">Erneut versuchen</string>
     <string name="error_unauthorized">Der Server hat die Anmeldung nicht akzeptiert. Bitte melde dich erneut an.</string>
     <string name="error_network">Der Server ist nicht erreichbar: %1$s</string>
     <string name="error_server">Der Server hat mit Fehler %1$d geantwortet.</string>

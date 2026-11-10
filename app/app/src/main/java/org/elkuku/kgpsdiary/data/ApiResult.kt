@@ -9,6 +9,6 @@ sealed interface ApiResult<out T> {
     /** The ID token was missing or rejected (expired or invalid); [message] is the server's. */
     data class Unauthorized(val message: UiText?) : ApiResult<Nothing>
 
-    /** E.g. a network error or an error answer of the server. */
-    data class Failure(val message: UiText) : ApiResult<Nothing>
+    /** E.g. a network error ([offline]) or an error answer of the server. */
+    data class Failure(val message: UiText, val offline: Boolean = false) : ApiResult<Nothing>
 }

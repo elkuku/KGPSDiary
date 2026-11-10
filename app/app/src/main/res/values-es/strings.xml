@@ -15,6 +15,10 @@
     <string name="role_user">usuario</string>
     <string name="role_admin">administrador</string>
 
+    <string name="error_offline">Sin conexión con el servidor.</string>
+    <string name="offline_saved_at">Sin conexión: datos del %1$s</string>
+    <string name="offline_nothing_saved">Sin conexión: todavía no hay nada guardado en este teléfono</string>
+    <string name="retry">Reintentar</string>
     <string name="error_unauthorized">El servidor no aceptó el inicio de sesión. Vuelve a iniciar sesión.</string>
     <string name="error_network">No se pudo conectar con el servidor: %1$s</string>
     <string name="error_server">El servidor respondió con el error %1$d.</string>

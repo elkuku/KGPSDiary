@@ -43,10 +43,10 @@ class MainViewModel @Inject constructor(
     val state: StateFlow<MainUiState> = _state.asStateFlow()
 
     init {
-        // A session that ends elsewhere (a token the server keeps rejecting) signs out here too
+        // An account that ends elsewhere (a token the server keeps rejecting) signs out here too
         viewModelScope.launch {
-            sessionManager.session.collect { session ->
-                if (session == null && _state.value.started && !_state.value.busy) {
+            sessionManager.account.collect { account ->
+                if (account == null && _state.value.started && !_state.value.busy) {
                     diary.clear()
                     _state.update { it.copy(email = null, displayName = null, me = null) }
                 }
@@ -102,14 +102,14 @@ class MainViewModel @Inject constructor(
             try {
                 block()
             } finally {
-                val session = sessionManager.session.value
+                val account = sessionManager.account.value
                 _state.update {
                     it.copy(
                         started = true,
                         busy = false,
-                        email = session?.email,
-                        displayName = session?.displayName,
-                        me = if (session == null) null else it.me,
+                        email = account?.email,
+                        displayName = account?.displayName,
+                        me = if (account == null) null else it.me,
                     )
                 }
             }

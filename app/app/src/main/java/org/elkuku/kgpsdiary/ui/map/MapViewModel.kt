@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,6 +35,9 @@ data class MapUiState(
     val loading: Boolean = false,
     /** True once the waypoints were loaded: the map then fits them. */
     val loaded: Boolean = false,
+    /** The server could not be reached: the map shows what the phone kept, from [syncedAt]. */
+    val offline: Boolean = false,
+    val syncedAt: Instant? = null,
     val message: UiText? = null,
 ) {
     /** The waypoints the filters let through, for the map. */
@@ -45,8 +49,15 @@ data class MapUiState(
 class MapViewModel @Inject constructor(private val diary: DiaryRepository) : ViewModel() {
     private val local = MutableStateFlow(MapUiState())
 
-    val state: StateFlow<MapUiState> = combine(local, diary.waypoints, diary.categories, diary.tags) { state, waypoints, categories, tags ->
+    val state: StateFlow<MapUiState> = combine(
+        local,
+        diary.waypoints,
+        diary.categories,
+        diary.tags,
+        diary.syncedAt,
+    ) { state, waypoints, categories, tags, syncedAt ->
         state.copy(
+            syncedAt = syncedAt,
             waypoints = waypoints,
             categories = categories,
             tags = tags,
@@ -62,15 +73,21 @@ class MapViewModel @Inject constructor(private val diary: DiaryRepository) : Vie
         if (local.value.loading) return
         viewModelScope.launch {
             local.update { it.copy(loading = true) }
+            // What the phone kept, at once; then the server's
+            diary.restore()
+            if (diary.waypoints.value.isNotEmpty()) local.update { it.copy(loaded = true) }
+
             val result = diary.refresh(context)
             local.update {
                 it.copy(
                     loading = false,
                     loaded = true,
+                    offline = result is ApiResult.Failure && result.offline,
                     message = when (result) {
                         is ApiResult.Success -> null
                         is ApiResult.Unauthorized -> result.message ?: uiText(R.string.error_unauthorized)
-                        is ApiResult.Failure -> result.message
+                        // Offline the notice on the map says it
+                        is ApiResult.Failure -> result.message.takeUnless { result.offline }
                     },
                 )
             }

@@ -23,6 +23,20 @@ data class GoogleSession(
     val displayName: String?,
 )
 
+/** The account of a session, which the phone remembers (without any token) for starting offline. */
+data class Account(val email: String, val displayName: String?)
+
+/** The outcome of a sign-in without the account picker. */
+sealed interface SilentSignIn {
+    data class Signed(val session: GoogleSession) : SilentSignIn
+
+    /** No account authorized the app (anymore): signed out. */
+    data object NoAccount : SilentSignIn
+
+    /** Google could not be asked, e.g. without a connection. */
+    data object Unavailable : SilentSignIn
+}
+
 /** [text] is shown to the user. */
 class AuthException(val text: UiText, val cancelled: Boolean = false) : Exception(text.toString())
 
@@ -34,11 +48,8 @@ interface GoogleAuth {
     /** Shows the "Sign in with Google" account picker. */
     suspend fun signIn(context: Context): GoogleSession
 
-    /**
-     * Gets a fresh ID token for an account that already authorized the app,
-     * without the account picker. Returns null if no such account is available.
-     */
-    suspend fun signInSilently(context: Context): GoogleSession?
+    /** Gets a fresh ID token for an account that already authorized the app, without the account picker. */
+    suspend fun signInSilently(context: Context): SilentSignIn
 
     suspend fun signOut(context: Context)
 }
@@ -62,7 +73,7 @@ class CredentialManagerGoogleAuth(
         }
     }
 
-    override suspend fun signInSilently(context: Context): GoogleSession? {
+    override suspend fun signInSilently(context: Context): SilentSignIn {
         val option = GetGoogleIdOption.Builder()
             .setServerClientId(requireClientId())
             .setFilterByAuthorizedAccounts(true)
@@ -70,11 +81,13 @@ class CredentialManagerGoogleAuth(
             .build()
 
         return try {
-            request(context, GetCredentialRequest.Builder().addCredentialOption(option).build())
-        } catch (_: GetCredentialException) {
-            null
+            SilentSignIn.Signed(request(context, GetCredentialRequest.Builder().addCredentialOption(option).build()))
+        } catch (_: NoCredentialException) {
+            SilentSignIn.NoAccount
         } catch (_: AuthException) {
-            null
+            SilentSignIn.NoAccount
+        } catch (_: GetCredentialException) {
+            SilentSignIn.Unavailable
         }
     }
 

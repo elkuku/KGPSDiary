@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -75,6 +76,8 @@ import com.mapbox.maps.plugin.annotation.ClusterOptions
 import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
+import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import org.elkuku.kgpsdiary.R
@@ -203,6 +206,10 @@ fun MapScreen(
             if (state.loading) {
                 LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.BottomCenter))
             }
+
+            if (state.offline) {
+                OfflineNotice(state.syncedAt, onRetry = { viewModel.load(context) }, modifier = Modifier.align(Alignment.BottomStart))
+            }
         }
     }
 
@@ -216,6 +223,33 @@ fun MapScreen(
             },
             onDelete = { viewModel.delete(context, waypoint.id) },
         )
+    }
+}
+
+/** Without a connection: the map shows the diary as the phone kept it. */
+@Composable
+private fun OfflineNotice(syncedAt: Instant?, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.padding(start = 8.dp, end = 96.dp, bottom = 40.dp),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        tonalElevation = 2.dp,
+    ) {
+        Row(Modifier.padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                if (syncedAt == null) {
+                    stringResource(R.string.offline_nothing_saved)
+                } else {
+                    stringResource(
+                        R.string.offline_saved_at,
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(syncedAt.atZone(ZoneId.systemDefault())),
+                    )
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            TextButton(onClick = onRetry) { Text(stringResource(R.string.retry)) }
+        }
     }
 }
 

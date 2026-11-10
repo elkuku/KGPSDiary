@@ -16,6 +16,10 @@
     <string name="role_user">user</string>
     <string name="role_admin">administrator</string>
 
+    <string name="error_offline">No connection to the server.</string>
+    <string name="offline_saved_at">Offline: as saved on %1$s</string>
+    <string name="offline_nothing_saved">Offline: nothing saved on this phone yet</string>
+    <string name="retry">Retry</string>
     <string name="error_unauthorized">The server did not accept the sign-in. Please sign in again.</string>
     <string name="error_network">The server could not be reached: %1$s</string>
     <string name="error_server">The server answered with error %1$d.</string>

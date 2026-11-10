@@ -82,7 +82,7 @@ class KgpsApiTest {
     fun networkErrorsAreFailures() = runTest {
         val api = api { throw IOException("no route") }
 
-        assertEquals(ApiResult.Failure(UiText.Res(R.string.error_network, listOf("no route"))), api.me("token"))
+        assertEquals(ApiResult.Failure(UiText.Res(R.string.error_network, listOf("no route")), offline = true), api.me("token"))
     }
 
     @Test

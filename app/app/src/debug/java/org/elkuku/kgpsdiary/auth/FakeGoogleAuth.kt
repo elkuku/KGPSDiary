@@ -15,7 +15,8 @@ class FakeGoogleAuth(private val email: String) : GoogleAuth {
         return session()
     }
 
-    override suspend fun signInSilently(context: Context): GoogleSession? = if (signedIn) session() else null
+    override suspend fun signInSilently(context: Context): SilentSignIn =
+        if (signedIn) SilentSignIn.Signed(session()) else SilentSignIn.NoAccount
 
     override suspend fun signOut(context: Context) {
         signedIn = false

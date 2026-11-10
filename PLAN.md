@@ -116,7 +116,7 @@ The server verifies every token against the Web client ID and requires a verifie
 | M4 ✅ | App map | The Mapbox map in the app with markers from the API, long-press to create, a detail sheet and an edit screen. |
 | M5 ✅ | Categories and tags | On both sides: marker colors and filters. |
 | M6 ✅ | Photos | Upload, thumbnails, galleries, and deleting, on both sides. |
-| M7 | Offline | Room cache, and later an offline queue for writes. |
+| M7 (read cache ✅) | Offline | Room cache, and later an offline queue for writes. |
 | M8 | Polish | List and search, translations (en, de, es?), app icon, a release build, deployment of the web app, and docs. |
 
 Later ideas: GPX/GeoJSON import and export, recorded tracks, sharing a waypoint by link, offline map regions.

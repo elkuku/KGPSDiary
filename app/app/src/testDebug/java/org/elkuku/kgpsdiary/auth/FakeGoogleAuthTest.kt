@@ -3,7 +3,6 @@ package org.elkuku.kgpsdiary.auth
 import android.content.ContextWrapper
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Test
 
 class FakeGoogleAuthTest {
@@ -21,12 +20,12 @@ class FakeGoogleAuthTest {
     @Test
     fun signsInSilentlyOnlyAfterASignIn() = runTest {
         val auth = FakeGoogleAuth("dev@example.com")
-        assertNull(auth.signInSilently(context))
+        assertEquals(SilentSignIn.NoAccount, auth.signInSilently(context))
 
         auth.signIn(context)
-        assertEquals("dev@example.com", auth.signInSilently(context)?.email)
+        assertEquals("dev@example.com", (auth.signInSilently(context) as SilentSignIn.Signed).session.email)
 
         auth.signOut(context)
-        assertNull(auth.signInSilently(context))
+        assertEquals(SilentSignIn.NoAccount, auth.signInSilently(context))
     }
 }

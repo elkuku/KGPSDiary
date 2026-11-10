@@ -175,7 +175,7 @@ class KgpsApi @Inject constructor(
             else -> ApiResult.Failure(response.problem() ?: uiText(R.string.error_server, response.status.value))
         }
     } catch (e: IOException) {
-        ApiResult.Failure(uiText(R.string.error_network, e.message.orEmpty()))
+        ApiResult.Failure(uiText(R.string.error_network, e.message.orEmpty()), offline = true)
     }
 
     /** The violations of a 422, else the `detail` of a problem answer. */
