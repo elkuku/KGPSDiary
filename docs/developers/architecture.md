@@ -41,6 +41,8 @@ build), and API Platform for the [API](api.md).
 
 | Area | Where | What |
 |---|---|---|
+| Entities | `src/Entity/` | `User`, and the diary: `Waypoint`, `Category`, `Tag`, each owned by one user. |
+| Owner scoping | `src/Doctrine/`, `src/State/`, `src/Security/Voter/`, `src/Validator/` | Users only see and change their own records, admins too. |
 | Security | `src/Security/` | `GoogleIdentityAuthenticator` (web button, with Google's CSRF cookie), `GoogleApiTokenAuthenticator` (API bearer token), both through `GoogleIdTokenVerifier` and `GoogleUserResolver`. |
 | API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |
 | Pages | `src/Controller/` | One class per action: login, profile, the user admin. |

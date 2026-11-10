@@ -58,6 +58,7 @@
         "jawira/doctrine-diagram-bundle": "dev-main",
         "phpstan/phpdoc-parser": "^2",
         "phpstan/phpstan": "^2",
+        "phpstan/phpstan-doctrine": "^2",
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^13",
         "rector/rector": "^2",
