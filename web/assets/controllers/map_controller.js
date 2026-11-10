@@ -9,6 +9,8 @@ const SOURCE = 'waypoints';
  * A click on a waypoint shows it, a click elsewhere offers a new waypoint at that place.
  */
 export default class extends Controller {
+    static targets = ['map', 'category', 'tag', 'count'];
+
     static values = {
         token: String,
         featuresUrl: String,
@@ -25,7 +27,7 @@ export default class extends Controller {
 
         mapboxgl.accessToken = this.tokenValue;
         this.map = new mapboxgl.Map({
-            container: this.element,
+            container: this.mapTarget,
             style: 'mapbox://styles/mapbox/outdoors-v12',
             center: this.hasCenterValue && this.centerValue.length === 2 ? this.centerValue : [0, 20],
             zoom: this.hasCenterValue && this.centerValue.length === 2 ? 14 : 1.5,
@@ -57,7 +59,9 @@ export default class extends Controller {
             return;
         }
 
-        this.map.addSource(SOURCE, { type: 'geojson', data, cluster: true, clusterRadius: 40, clusterMaxZoom: 13 });
+        this.features = data.features;
+        this.map.addSource(SOURCE, { type: 'geojson', data: this.filtered(), cluster: true, clusterRadius: 40, clusterMaxZoom: 13 });
+        this.showCount();
         this.map.addLayer({
             id: 'clusters',
             type: 'circle',
@@ -100,6 +104,31 @@ export default class extends Controller {
             const bounds = new mapboxgl.LngLatBounds();
             data.features.forEach((feature) => bounds.extend(feature.geometry.coordinates));
             this.map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 0 });
+        }
+    }
+
+    /** Shows only the waypoints of the chosen category and tag. */
+    filter() {
+        this.map?.getSource(SOURCE)?.setData(this.filtered());
+        this.showCount();
+    }
+
+    filtered() {
+        const category = this.hasCategoryTarget ? this.categoryTarget.value : '';
+        const tag = this.hasTagTarget ? Number(this.tagTarget.value) : 0;
+
+        const features = (this.features ?? []).filter(({ properties }) => {
+            if (category === 'none' && properties.categoryId !== null) return false;
+            if (category && category !== 'none' && properties.categoryId !== Number(category)) return false;
+            return !tag || properties.tagIds.includes(tag);
+        });
+
+        return { type: 'FeatureCollection', features };
+    }
+
+    showCount() {
+        if (this.hasCountTarget && this.features) {
+            this.countTarget.textContent = `${this.filtered().features.length} / ${this.features.length}`;
         }
     }
 
@@ -168,6 +197,6 @@ export default class extends Controller {
         const alert = document.createElement('div');
         alert.className = `alert alert-${type} m-3`;
         alert.textContent = text;
-        this.element.replaceChildren(alert);
+        (this.hasMapTarget ? this.mapTarget : this.element).replaceChildren(alert);
     }
 }

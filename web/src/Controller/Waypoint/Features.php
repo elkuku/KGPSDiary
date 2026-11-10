@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Waypoint;
 
 use App\Controller\BaseController;
+use App\Entity\Tag;
 use App\Repository\WaypointRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -31,6 +32,8 @@ final class Features extends BaseController
                     'title' => $waypoint->getTitle(),
                     'visitedAt' => $waypoint->getVisitedAt()?->format('Y-m-d'),
                     'category' => $category?->getName(),
+                    'categoryId' => $category?->getId(),
+                    'tagIds' => $waypoint->getTags()->map(static fn (Tag $tag): ?int => $tag->getId())->getValues(),
                     'color' => $category?->getColor() ?? '#d84315',
                     'url' => $this->generateUrl('app_waypoint_show', ['id' => $waypoint->getId()]),
                 ],

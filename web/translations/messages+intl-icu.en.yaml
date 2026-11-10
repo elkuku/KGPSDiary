@@ -1,4 +1,6 @@
 nav:
+    categories: Categories
+    tags: Tags
     map: Map
 home:
     tagline: Your GPS diary of places and waypoints.
@@ -6,6 +8,10 @@ home:
     open_map: Open the map
     sign_in: Sign in
 map:
+    filter_category: Filter by category
+    filter_tag: Filter by tag
+    all_categories: All categories
+    all_tags: All tags
     title: Map
     hint: Click on the map to add a waypoint there, or on a waypoint to see it.
     add_here: Add a waypoint here
@@ -13,6 +19,8 @@ map:
     no_token: The map needs a Mapbox access token (MAPBOX_TOKEN).
     load_failed: The waypoints could not be loaded.
 waypoint:
+    edit_short: Edit
+    count: '{count, plural, =0 {no waypoints} one {one waypoint} other {# waypoints}}'
     new: New waypoint
     edit: Edit waypoint
     save: Save
@@ -36,3 +44,32 @@ waypoint:
         updated: The waypoint has been updated.
         deleted: The waypoint has been deleted.
         invalid_token: The form has expired, please try again.
+category:
+    title: Categories
+    intro: Each waypoint can have one category. Its color is the waypoint's color on the map.
+    none: You have no categories yet.
+    new: New category
+    add: Add category
+    edit: Edit category
+    name: Name
+    color: Color
+    icon: Icon
+    icon_help: 'Optional: a Material Symbols name like "hiking", for the app.'
+    delete_confirm: 'Delete the category "{name}"? Its waypoints stay.'
+    flash:
+        created: The category has been added.
+        updated: The category has been updated.
+        deleted: The category has been deleted.
+tag:
+    title: Tags
+    intro: A waypoint can have any number of tags, to find it again.
+    none: You have no tags yet.
+    new: New tag
+    add: Add tag
+    edit: Edit tag
+    name: Name
+    delete_confirm: 'Delete the tag "{name}"? Its waypoints stay.'
+    flash:
+        created: The tag has been added.
+        updated: The tag has been updated.
+        deleted: The tag has been deleted.

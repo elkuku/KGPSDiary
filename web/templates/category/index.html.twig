@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'category.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h2 class="mt-4">{{ 'category.title'|trans }}</h2>
+    <p class="text-body-secondary">{{ 'category.intro'|trans }}</p>
+
+    {% if categories is empty %}
+        <p class="text-body-secondary fst-italic">{{ 'category.none'|trans }}</p>
+    {% else %}
+        <ul class="list-group mb-4">
+            {% for category in categories %}
+                <li class="list-group-item d-flex align-items-center gap-3">
+                    <span class="rounded-circle border flex-shrink-0" style="width: 1.25rem; height: 1.25rem; background-color: {{ category.color }}"></span>
+                    <span class="flex-grow-1">
+                        {{ category.name }}
+                        {% if category.icon %}<span class="text-body-secondary small font-monospace ms-1">{{ category.icon }}</span>{% endif %}
+                    </span>
+                    <span class="badge text-bg-light">{{ 'waypoint.count'|trans({count: counts[category.id] ?? 0}) }}</span>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_category_edit', {id: category.id}) }}">{{ 'waypoint.edit_short'|trans }}</a>
+                    <form method="post" action="{{ path('app_category_delete', {id: category.id}) }}"
+                          onsubmit="return confirm({{ 'category.delete_confirm'|trans({name: category.name})|json_encode|e('html_attr') }});">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-category-' ~ category.id) }}">
+                        <button class="btn btn-sm btn-outline-danger">{{ 'waypoint.delete'|trans }}</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h3 class="h5">{{ 'category.new'|trans }}</h3>
+    {{ form_start(form, {attr: {class: 'row g-2 align-items-start'}}) }}
+        <div class="col-sm-5">{{ form_row(form.name) }}</div>
+        <div class="col-sm-2">{{ form_row(form.color, {attr: {class: 'form-control-color w-100'}}) }}</div>
+        <div class="col-sm-5">{{ form_row(form.icon) }}</div>
+        <div class="col-12"><button class="btn btn-primary">{{ 'category.add'|trans }}</button></div>
+    {{ form_end(form) }}
+{% endblock %}

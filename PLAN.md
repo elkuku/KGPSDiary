@@ -114,7 +114,7 @@ The server verifies every token against the Web client ID and requires a verifie
 | M2 ✅ | Waypoints API | Entities, migrations, API resources and voters. PHPUnit tests for the API and for access to other users' data. |
 | M3 ✅ | Web map | The map page shows your waypoints and can create, edit and delete them. |
 | M4 ✅ | App map | The Mapbox map in the app with markers from the API, long-press to create, a detail sheet and an edit screen. |
-| M5 | Categories and tags | On both sides: marker colors and filters. |
+| M5 ✅ | Categories and tags | On both sides: marker colors and filters. |
 | M6 | Photos | Upload, thumbnails, galleries, and deleting, on both sides. |
 | M7 | Offline | Room cache, and later an offline queue for writes. |
 | M8 | Polish | List and search, translations (en, de, es?), app icon, a release build, deployment of the web app, and docs. |

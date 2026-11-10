@@ -20,6 +20,7 @@ Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 | DI | `di/` | Hilt modules: the HTTP client and server URL, the Google sign-in per build type. |
 | Diary | `data/DiaryRepository.kt` | The user's waypoints, categories and tags as last loaded; saving and deleting go to the server first. |
 | Map | `ui/map/` | Mapbox Maps SDK (Compose extension): clustered markers in category colors, a long press adds a waypoint there, the + button one at the map's center, a tap shows a detail sheet. |
+| Categories and tags | `ui/manage/` | Adding, renaming, recoloring (12 marker colors) and deleting categories and tags, with their waypoint counts. The map filters by one category and one tag (chips above the map). |
 | Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category and tags. |
 | UI | `ui/` | `MainViewModel` (session), `AppNavHost` (type-safe Navigation Compose), the sign-in and profile screens. |
 
@@ -49,7 +50,8 @@ build), and API Platform for the [API](api.md).
 | Security | `src/Security/` | `GoogleIdentityAuthenticator` (web button, with Google's CSRF cookie), `GoogleApiTokenAuthenticator` (API bearer token), both through `GoogleIdTokenVerifier` and `GoogleUserResolver`. |
 | API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |
 | Pages | `src/Controller/` | One class per action: login, profile, the user admin, and the diary in `Waypoint/`: the map, its GeoJSON, and creating, showing, editing and deleting waypoints. |
-| Map | `assets/controllers/map_controller.js` | Stimulus controller with Mapbox GL JS (from the importmap): clustered waypoints in their category colors; a click on the map offers a new waypoint there. |
+| Map | `assets/controllers/map_controller.js` | Stimulus controller with Mapbox GL JS (from the importmap): clustered waypoints in their category colors; a click on the map offers a new waypoint there; filters by category and tag. |
+| Categories and tags | `src/Controller/Category/`, `src/Controller/Tag/` | Lists with waypoint counts, a form for a new one, editing and deleting (the waypoints stay). |
 | Languages | `translations/` | English, German, Spanish (ICU messages), picked by the browser's `Accept-Language`. |
 
 ## Authentication

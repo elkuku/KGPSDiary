@@ -46,4 +46,26 @@
     <string name="waypoint_delete_title">Wegpunkt löschen?</string>
     <string name="waypoint_delete_text">„%1$s“ wird gelöscht, auch im Web.</string>
     <string name="waypoint_deleted">Der Wegpunkt wurde gelöscht.</string>
+
+    <string name="manage_title">Kategorien und Tags</string>
+    <string name="manage_categories">Kategorien</string>
+    <string name="manage_tags">Tags</string>
+    <string name="manage_no_categories">Noch keine Kategorien. Eine Kategorie gibt ihren Wegpunkten eine Farbe auf der Karte.</string>
+    <string name="manage_no_tags">Noch keine Tags. Mit Tags findest du Wegpunkte wieder.</string>
+    <string name="manage_add">Hinzufügen: %1$s</string>
+    <string name="manage_new_category">Neue Kategorie</string>
+    <string name="manage_edit_category">Kategorie bearbeiten</string>
+    <string name="manage_new_tag">Neuer Tag</string>
+    <string name="manage_edit_tag">Tag bearbeiten</string>
+    <string name="manage_name">Name</string>
+    <string name="manage_icon">Symbol (optional)</string>
+    <string name="manage_icon_help">Ein Material-Symbols-Name wie hiking</string>
+    <string name="manage_delete_category">Die Kategorie „%1$s“ löschen? Ihre Wegpunkte bleiben.</string>
+    <string name="manage_delete_tag">Den Tag „%1$s“ löschen? Seine Wegpunkte bleiben.</string>
+    <string name="map_shown">%1$d von %2$d</string>
+
+    <plurals name="waypoint_count">
+        <item quantity="one">%d Wegpunkt</item>
+        <item quantity="other">%d Wegpunkte</item>
+    </plurals>
 </resources>

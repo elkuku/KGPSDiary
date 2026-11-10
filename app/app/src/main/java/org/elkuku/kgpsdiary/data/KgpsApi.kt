@@ -76,8 +76,30 @@ class KgpsApi @Inject constructor(
         }
     }
 
-    suspend fun deleteWaypoint(idToken: String, id: Int): ApiResult<Unit> =
-        when (val result = send { client.delete("$root/api/waypoints/$id") { auth(idToken) } }) {
+    suspend fun deleteWaypoint(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/waypoints/$id")
+
+    suspend fun saveCategory(idToken: String, id: Int?, input: CategoryInput): ApiResult<Category> = request {
+        if (id == null) {
+            client.post("$root/api/categories") { auth(idToken); contentType(LdJson); setBody(input) }
+        } else {
+            client.patch("$root/api/categories/$id") { auth(idToken); contentType(MergePatchJson); setBody(input) }
+        }
+    }
+
+    suspend fun deleteCategory(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/categories/$id")
+
+    suspend fun saveTag(idToken: String, id: Int?, input: TagInput): ApiResult<Tag> = request {
+        if (id == null) {
+            client.post("$root/api/tags") { auth(idToken); contentType(LdJson); setBody(input) }
+        } else {
+            client.patch("$root/api/tags/$id") { auth(idToken); contentType(MergePatchJson); setBody(input) }
+        }
+    }
+
+    suspend fun deleteTag(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/tags/$id")
+
+    private suspend fun delete(idToken: String, path: String): ApiResult<Unit> =
+        when (val result = send { client.delete("$root$path") { auth(idToken) } }) {
             is ApiResult.Success -> ApiResult.Success(Unit)
             is ApiResult.Unauthorized -> result
             is ApiResult.Failure -> result

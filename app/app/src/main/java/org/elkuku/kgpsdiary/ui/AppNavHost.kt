@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 import org.elkuku.kgpsdiary.ui.edit.EditWaypointScreen
+import org.elkuku.kgpsdiary.ui.manage.ManageScreen
 import org.elkuku.kgpsdiary.ui.map.MapScreen
 
 @Serializable
@@ -18,6 +19,9 @@ data class EditWaypointRoute(val id: Int? = null, val latitude: Double? = null, 
 
 @Serializable
 object ProfileRoute
+
+@Serializable
+object ManageRoute
 
 /** The screens of a signed-in user. */
 @Composable
@@ -35,7 +39,11 @@ fun AppNavHost(
                 onAdd = { latitude, longitude -> navController.navigate(EditWaypointRoute(latitude = latitude, longitude = longitude)) },
                 onEdit = { id -> navController.navigate(EditWaypointRoute(id = id)) },
                 onProfile = { navController.navigate(ProfileRoute) },
+                onManage = { navController.navigate(ManageRoute) },
             )
+        }
+        composable<ManageRoute> {
+            ManageScreen(onBack = { navController.popBackStack() })
         }
         composable<EditWaypointRoute> {
             EditWaypointScreen(onDone = { navController.popBackStack() })

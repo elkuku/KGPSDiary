@@ -5,6 +5,13 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import org.elkuku.kgpsdiary.ui.manage.ColorDot
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -85,6 +92,7 @@ fun MapScreen(
     onAdd: (latitude: Double, longitude: Double) -> Unit,
     onEdit: (id: Int) -> Unit,
     onProfile: () -> Unit,
+    onManage: () -> Unit,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -123,6 +131,9 @@ fun MapScreen(
                 actions = {
                     IconButton(onClick = { viewModel.load(context) }, enabled = !state.loading) {
                         Icon(painterResource(R.drawable.ic_refresh), stringResource(R.string.refresh))
+                    }
+                    IconButton(onClick = onManage) {
+                        Icon(painterResource(R.drawable.ic_label), stringResource(R.string.manage_title))
                     }
                     IconButton(onClick = onProfile) {
                         Icon(painterResource(R.drawable.ic_person), stringResource(R.string.profile))
@@ -168,7 +179,12 @@ fun MapScreen(
                         locationPuck = createDefault2DPuck(withBearing = true)
                     }
                 }
-                WaypointMarkers(state.waypoints, viewportState, onClick = viewModel::select)
+                WaypointMarkers(state.visibleWaypoints, viewportState, onClick = viewModel::select)
+            }
+
+            if (state.categories.isNotEmpty() || state.tags.isNotEmpty()) {
+                // Below Mapbox's scale bar
+                FilterChips(state, viewModel::filterCategory, viewModel::filterTag, Modifier.align(Alignment.TopStart).padding(top = 28.dp))
             }
 
             // The map's center, where the add button puts a waypoint
@@ -180,7 +196,7 @@ fun MapScreen(
             )
 
             if (state.loading) {
-                LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter))
+                LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.BottomCenter))
             }
         }
     }
@@ -195,6 +211,43 @@ fun MapScreen(
             },
             onDelete = { viewModel.delete(context, waypoint.id) },
         )
+    }
+}
+
+/** One chip per category (with its color) and tag; a selected chip filters the map. */
+@Composable
+private fun FilterChips(state: MapUiState, onCategory: (Int) -> Unit, onTag: (Int) -> Unit, modifier: Modifier = Modifier) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (state.filtered) {
+            item {
+                AssistChip(
+                    onClick = {},
+                    label = { Text(stringResource(R.string.map_shown, state.visibleWaypoints.size, state.waypoints.size)) },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+            }
+        }
+        items(state.categories, key = { "c${it.id}" }) { category ->
+            FilterChip(
+                selected = category.id == state.categoryId,
+                onClick = { onCategory(category.id) },
+                label = { Text(category.name) },
+                leadingIcon = { ColorDot(category.color, 12) },
+                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+            )
+        }
+        items(state.tags, key = { "t${it.id}" }) { tag ->
+            FilterChip(
+                selected = tag.id == state.tagId,
+                onClick = { onTag(tag.id) },
+                label = { Text("#${tag.name}") },
+                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+            )
+        }
     }
 }
 
@@ -257,9 +310,7 @@ private fun WaypointSheet(waypoint: Waypoint, onDismiss: () -> Unit, onEdit: () 
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     waypoint.category?.let { category ->
                         AssistChip(onClick = {}, label = { Text(category.name) }, leadingIcon = {
-                            Box(Modifier.size(12.dp).padding(1.dp)) {
-                                androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) { drawCircle(Color(parseColor(category.color))) }
-                            }
+                            ColorDot(category.color, 12)
                         })
                     }
                     waypoint.tags.forEach { tag -> AssistChip(onClick = {}, label = { Text(tag.name) }) }

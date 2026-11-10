@@ -56,3 +56,18 @@ internal data class CollectionPage<T>(val member: List<T> = emptyList(), val vie
 
 @Serializable
 internal data class CollectionView(val next: String? = null)
+
+/** The body of `POST` and `PATCH /api/categories`. */
+@Serializable
+data class CategoryInput(val name: String, val color: String, val icon: String?)
+
+/** The body of `POST` and `PATCH /api/tags`. */
+@Serializable
+data class TagInput(val name: String)
+
+/**
+ * The [waypoints] of [categoryId] (null: any) with [tagId] (null: any), for the map's filters.
+ */
+fun filterWaypoints(waypoints: List<Waypoint>, categoryId: Int?, tagId: Int?): List<Waypoint> = waypoints.filter { waypoint ->
+    (categoryId == null || waypoint.category?.id == categoryId) && (tagId == null || waypoint.tags.any { it.id == tagId })
+}

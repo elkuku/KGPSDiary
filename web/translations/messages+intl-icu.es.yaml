@@ -1,4 +1,6 @@
 nav:
+    categories: Categorías
+    tags: Etiquetas
     map: Mapa
 home:
     tagline: Tu diario GPS de lugares y puntos de referencia.
@@ -6,6 +8,10 @@ home:
     open_map: Abrir el mapa
     sign_in: Iniciar sesión
 map:
+    filter_category: Filtrar por categoría
+    filter_tag: Filtrar por etiqueta
+    all_categories: Todas las categorías
+    all_tags: Todas las etiquetas
     title: Mapa
     hint: Haz clic en el mapa para añadir un punto allí, o en un punto para verlo.
     add_here: Añadir un punto aquí
@@ -13,6 +19,8 @@ map:
     no_token: El mapa necesita un token de acceso de Mapbox (MAPBOX_TOKEN).
     load_failed: No se pudieron cargar los puntos.
 waypoint:
+    edit_short: Editar
+    count: '{count, plural, =0 {ningún punto} one {un punto} other {# puntos}}'
     new: Nuevo punto
     edit: Editar punto
     save: Guardar
@@ -36,3 +44,32 @@ waypoint:
         updated: El punto se ha actualizado.
         deleted: El punto se ha eliminado.
         invalid_token: El formulario ha caducado, inténtalo de nuevo.
+category:
+    title: Categorías
+    intro: Cada punto puede tener una categoría. Su color es el color del punto en el mapa.
+    none: Todavía no tienes categorías.
+    new: Nueva categoría
+    add: Añadir categoría
+    edit: Editar categoría
+    name: Nombre
+    color: Color
+    icon: Icono
+    icon_help: 'Opcional: un nombre de Material Symbols como «hiking», para la app.'
+    delete_confirm: '¿Eliminar la categoría «{name}»? Sus puntos se mantienen.'
+    flash:
+        created: La categoría se ha añadido.
+        updated: La categoría se ha actualizado.
+        deleted: La categoría se ha eliminado.
+tag:
+    title: Etiquetas
+    intro: Un punto puede tener cualquier número de etiquetas, para encontrarlo de nuevo.
+    none: Todavía no tienes etiquetas.
+    new: Nueva etiqueta
+    add: Añadir etiqueta
+    edit: Editar etiqueta
+    name: Nombre
+    delete_confirm: '¿Eliminar la etiqueta «{name}»? Sus puntos se mantienen.'
+    flash:
+        created: La etiqueta se ha añadido.
+        updated: La etiqueta se ha actualizado.
+        deleted: La etiqueta se ha eliminado.

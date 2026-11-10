@@ -86,6 +86,8 @@ class WaypointControllerTest extends WebTestCase
                 'title' => 'Mitad del Mundo',
                 'visitedAt' => '2026-10-31',
                 'category' => 'Monuments',
+                'categoryId' => $category->getId(),
+                'tagIds' => [],
                 'color' => '#ff8800',
                 'url' => '/waypoints/'.$mine->getId(),
             ],

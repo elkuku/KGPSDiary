@@ -63,6 +63,50 @@ class DiaryRepository @Inject constructor(
         return result
     }
 
+    /** Creates a category, or changes the one with [id]; the waypoints show the change. */
+    suspend fun saveCategory(context: Context, id: Int?, input: CategoryInput): ApiResult<Category> {
+        val result = sessionManager.authorized(context) { token -> api.saveCategory(token, id, input) }
+        if (result is ApiResult.Success) {
+            val saved = result.value
+            _categories.update { list -> (list.filter { it.id != saved.id } + saved).sortedBy { it.name.lowercase() } }
+            _waypoints.update { list -> list.map { if (it.category?.id == saved.id) it.copy(category = saved) else it } }
+        }
+        return result
+    }
+
+    /** Deletes a category; its waypoints stay, without a category. */
+    suspend fun deleteCategory(context: Context, id: Int): ApiResult<Unit> {
+        val result = sessionManager.authorized(context) { token -> api.deleteCategory(token, id) }
+        if (result is ApiResult.Success) {
+            _categories.update { list -> list.filter { it.id != id } }
+            _waypoints.update { list -> list.map { if (it.category?.id == id) it.copy(category = null) else it } }
+        }
+        return result
+    }
+
+    /** Creates a tag, or renames the one with [id]. */
+    suspend fun saveTag(context: Context, id: Int?, input: TagInput): ApiResult<Tag> {
+        val result = sessionManager.authorized(context) { token -> api.saveTag(token, id, input) }
+        if (result is ApiResult.Success) {
+            val saved = result.value
+            _tags.update { list -> (list.filter { it.id != saved.id } + saved).sortedBy { it.name.lowercase() } }
+            _waypoints.update { list ->
+                list.map { waypoint -> waypoint.copy(tags = waypoint.tags.map { if (it.id == saved.id) saved else it }) }
+            }
+        }
+        return result
+    }
+
+    /** Deletes a tag; its waypoints stay. */
+    suspend fun deleteTag(context: Context, id: Int): ApiResult<Unit> {
+        val result = sessionManager.authorized(context) { token -> api.deleteTag(token, id) }
+        if (result is ApiResult.Success) {
+            _tags.update { list -> list.filter { it.id != id } }
+            _waypoints.update { list -> list.map { waypoint -> waypoint.copy(tags = waypoint.tags.filter { it.id != id }) } }
+        }
+        return result
+    }
+
     /** Forgets the diary, e.g. after signing out. */
     fun clear() {
         _waypoints.value = emptyList()

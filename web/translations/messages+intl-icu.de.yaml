@@ -1,4 +1,6 @@
 nav:
+    categories: Kategorien
+    tags: Tags
     map: Karte
 home:
     tagline: Dein GPS-Tagebuch für Orte und Wegpunkte.
@@ -6,6 +8,10 @@ home:
     open_map: Karte öffnen
     sign_in: Anmelden
 map:
+    filter_category: Nach Kategorie filtern
+    filter_tag: Nach Tag filtern
+    all_categories: Alle Kategorien
+    all_tags: Alle Tags
     title: Karte
     hint: Klicke auf die Karte, um dort einen Wegpunkt anzulegen, oder auf einen Wegpunkt, um ihn anzusehen.
     add_here: Hier einen Wegpunkt anlegen
@@ -13,6 +19,8 @@ map:
     no_token: Die Karte braucht einen Mapbox-Zugriffstoken (MAPBOX_TOKEN).
     load_failed: Die Wegpunkte konnten nicht geladen werden.
 waypoint:
+    edit_short: Bearbeiten
+    count: '{count, plural, =0 {keine Wegpunkte} one {ein Wegpunkt} other {# Wegpunkte}}'
     new: Neuer Wegpunkt
     edit: Wegpunkt bearbeiten
     save: Speichern
@@ -36,3 +44,32 @@ waypoint:
         updated: Der Wegpunkt wurde aktualisiert.
         deleted: Der Wegpunkt wurde gelöscht.
         invalid_token: Das Formular ist abgelaufen, bitte versuche es noch einmal.
+category:
+    title: Kategorien
+    intro: Jeder Wegpunkt kann eine Kategorie haben. Ihre Farbe ist die Farbe des Wegpunkts auf der Karte.
+    none: Du hast noch keine Kategorien.
+    new: Neue Kategorie
+    add: Kategorie hinzufügen
+    edit: Kategorie bearbeiten
+    name: Name
+    color: Farbe
+    icon: Symbol
+    icon_help: 'Optional: ein Material-Symbols-Name wie „hiking“, für die App.'
+    delete_confirm: 'Die Kategorie „{name}“ löschen? Ihre Wegpunkte bleiben.'
+    flash:
+        created: Die Kategorie wurde hinzugefügt.
+        updated: Die Kategorie wurde aktualisiert.
+        deleted: Die Kategorie wurde gelöscht.
+tag:
+    title: Tags
+    intro: Ein Wegpunkt kann beliebig viele Tags haben, um ihn wiederzufinden.
+    none: Du hast noch keine Tags.
+    new: Neuer Tag
+    add: Tag hinzufügen
+    edit: Tag bearbeiten
+    name: Name
+    delete_confirm: 'Den Tag „{name}“ löschen? Seine Wegpunkte bleiben.'
+    flash:
+        created: Der Tag wurde hinzugefügt.
+        updated: Der Tag wurde aktualisiert.
+        deleted: Der Tag wurde gelöscht.

@@ -169,4 +169,36 @@ class KgpsApiTest {
         assertEquals(ApiResult.Success(Unit), api.deleteWaypoint("token", 5))
         assertEquals("https://diary.test/api/waypoints/5", lastUrl)
     }
+
+    @Test
+    fun createsAndChangesCategories() = runTest {
+        val api = api {
+            respond("""{"id":3,"name":"Food","color":"#1565c0","icon":"restaurant"}""", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/ld+json"))
+        }
+
+        val created = api.saveCategory("token", null, CategoryInput("Food", "#1565c0", "restaurant"))
+
+        assertEquals(ApiResult.Success(Category(3, "Food", "#1565c0", "restaurant")), created)
+        assertEquals("https://diary.test/api/categories", lastUrl)
+        assertEquals("""{"name":"Food","color":"#1565c0","icon":"restaurant"}""", lastBody)
+
+        api.saveCategory("token", 3, CategoryInput("Food", "#1565c0", null))
+        assertEquals("https://diary.test/api/categories/3", lastUrl)
+        assertTrue(lastContentType.orEmpty().startsWith("application/merge-patch+json"))
+    }
+
+    @Test
+    fun createsAndDeletesTags() = runTest {
+        val api = api {
+            if (lastUrl.orEmpty().endsWith("/7")) {
+                respond("", HttpStatusCode.NoContent)
+            } else {
+                respond("""{"id":7,"name":"Lunch"}""", HttpStatusCode.Created, headersOf(HttpHeaders.ContentType, "application/ld+json"))
+            }
+        }
+
+        assertEquals(ApiResult.Success(Tag(7, "Lunch")), api.saveTag("token", null, TagInput("Lunch")))
+        assertEquals(ApiResult.Success(Unit), api.deleteTag("token", 7))
+        assertEquals("https://diary.test/api/tags/7", lastUrl)
+    }
 }

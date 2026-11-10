@@ -12,6 +12,12 @@
                     <li class="nav-item">
                         <a class="nav-link{{ app.request.attributes.get('_route') starts with 'app_waypoint' ? ' active' }}" href="{{ path('app_waypoint_map') }}">{{ 'nav.map'|trans }}</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link{{ app.request.attributes.get('_route') starts with 'app_category' ? ' active' }}" href="{{ path('app_category_index') }}">{{ 'nav.categories'|trans }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{{ app.request.attributes.get('_route') starts with 'app_tag' ? ' active' }}" href="{{ path('app_tag_index') }}">{{ 'nav.tags'|trans }}</a>
+                    </li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item dropdown">
                             <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

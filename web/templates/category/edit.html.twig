@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ category.name }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h2 class="mt-4">{{ 'category.edit'|trans }}</h2>
+
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.color, {attr: {class: 'form-control-color'}}) }}
+        {{ form_row(form.icon) }}
+        <button class="btn btn-primary">{{ 'waypoint.save'|trans }}</button>
+        <a class="btn btn-link" href="{{ path('app_category_index') }}">{{ 'waypoint.cancel'|trans }}</a>
+    {{ form_end(form) }}
+{% endblock %}

@@ -52,6 +52,7 @@ Single-action controller pattern under `src/Controller/`:
 - `Security/` — `GoogleIdentityController` (route for the Google button), `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
 - `Waypoint/` — the diary on the web: `Map` (`/map`), `Features` (`/map/waypoints.geojson`), `Create`, `Read`, `Update`, `Delete`; other users' waypoints are 404 (`IsGranted(OWNER, statusCode: 404)`)
+- `Category/`, `Tag/` — `Index` (list and new form), `Update`, `Delete`; other users' records are 404
 - `ProfileController`, `DefaultController` (start page)
 
 Access control uses `#[IsGranted()]` attributes.

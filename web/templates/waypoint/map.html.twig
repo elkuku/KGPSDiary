@@ -9,10 +9,7 @@
             <twig:ux:icon name="bi:plus-lg" /> {{ 'waypoint.new'|trans }}
         </a>
     </div>
-    <p class="text-body-secondary small mb-2">{{ 'map.hint'|trans }}</p>
-
-    <div class="waypoint-map rounded border"
-         {{ stimulus_controller('map', {
+    <div {{ stimulus_controller('map', {
              token: mapbox_token,
              featuresUrl: path('app_waypoint_features'),
              newUrl: path('app_waypoint_new'),
@@ -23,5 +20,30 @@
                  noToken: 'map.no_token'|trans,
                  loadFailed: 'map.load_failed'|trans,
              },
-         }) }}></div>
+         }) }}>
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+            <span class="text-body-secondary small me-auto">{{ 'map.hint'|trans }}</span>
+            {% if categories is not empty %}
+                <select class="form-select form-select-sm w-auto" aria-label="{{ 'map.filter_category'|trans }}"
+                        data-map-target="category" data-action="map#filter">
+                    <option value="">{{ 'map.all_categories'|trans }}</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                    <option value="none">{{ 'waypoint.no_category'|trans }}</option>
+                </select>
+            {% endif %}
+            {% if tags is not empty %}
+                <select class="form-select form-select-sm w-auto" aria-label="{{ 'map.filter_tag'|trans }}"
+                        data-map-target="tag" data-action="map#filter">
+                    <option value="">{{ 'map.all_tags'|trans }}</option>
+                    {% for tag in tags %}
+                        <option value="{{ tag.id }}">{{ tag.name }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            <span class="text-body-secondary small" data-map-target="count"></span>
+        </div>
+        <div class="waypoint-map rounded border" data-map-target="map"></div>
+    </div>
 {% endblock %}

@@ -47,4 +47,26 @@
     <string name="waypoint_delete_title">Delete waypoint?</string>
     <string name="waypoint_delete_text">&#8220;%1$s&#8221; will be deleted, on the web too.</string>
     <string name="waypoint_deleted">The waypoint has been deleted.</string>
+
+    <string name="manage_title">Categories and tags</string>
+    <string name="manage_categories">Categories</string>
+    <string name="manage_tags">Tags</string>
+    <string name="manage_no_categories">No categories yet. A category gives its waypoints a color on the map.</string>
+    <string name="manage_no_tags">No tags yet. Tags help you find waypoints again.</string>
+    <string name="manage_add">Add: %1$s</string>
+    <string name="manage_new_category">New category</string>
+    <string name="manage_edit_category">Edit category</string>
+    <string name="manage_new_tag">New tag</string>
+    <string name="manage_edit_tag">Edit tag</string>
+    <string name="manage_name">Name</string>
+    <string name="manage_icon">Icon (optional)</string>
+    <string name="manage_icon_help">A Material Symbols name like hiking</string>
+    <string name="manage_delete_category">Delete the category &#8220;%1$s&#8221;? Its waypoints stay.</string>
+    <string name="manage_delete_tag">Delete the tag &#8220;%1$s&#8221;? Its waypoints stay.</string>
+    <string name="map_shown">%1$d of %2$d</string>
+
+    <plurals name="waypoint_count">
+        <item quantity="one">%d waypoint</item>
+        <item quantity="other">%d waypoints</item>
+    </plurals>
 </resources>

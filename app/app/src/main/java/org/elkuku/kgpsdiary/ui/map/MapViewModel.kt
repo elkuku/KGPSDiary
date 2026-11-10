@@ -15,27 +15,44 @@ import kotlinx.coroutines.launch
 import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.UiText
 import org.elkuku.kgpsdiary.data.ApiResult
+import org.elkuku.kgpsdiary.data.Category
 import org.elkuku.kgpsdiary.data.DiaryRepository
+import org.elkuku.kgpsdiary.data.Tag
 import org.elkuku.kgpsdiary.data.Waypoint
+import org.elkuku.kgpsdiary.data.filterWaypoints
 import org.elkuku.kgpsdiary.uiText
 
 data class MapUiState(
     val waypoints: List<Waypoint> = emptyList(),
+    val categories: List<Category> = emptyList(),
+    val tags: List<Tag> = emptyList(),
+    /** The filters: only this category, and this tag (null: all). */
+    val categoryId: Int? = null,
+    val tagId: Int? = null,
     /** The waypoint whose details are shown. */
     val selected: Waypoint? = null,
     val loading: Boolean = false,
     /** True once the waypoints were loaded: the map then fits them. */
     val loaded: Boolean = false,
     val message: UiText? = null,
-)
+) {
+    /** The waypoints the filters let through, for the map. */
+    val visibleWaypoints: List<Waypoint> get() = filterWaypoints(waypoints, categoryId, tagId)
+    val filtered: Boolean get() = categoryId != null || tagId != null
+}
 
 @HiltViewModel
 class MapViewModel @Inject constructor(private val diary: DiaryRepository) : ViewModel() {
     private val local = MutableStateFlow(MapUiState())
 
-    val state: StateFlow<MapUiState> = combine(local, diary.waypoints) { state, waypoints ->
+    val state: StateFlow<MapUiState> = combine(local, diary.waypoints, diary.categories, diary.tags) { state, waypoints, categories, tags ->
         state.copy(
             waypoints = waypoints,
+            categories = categories,
+            tags = tags,
+            // A filter on a deleted category or tag ends
+            categoryId = state.categoryId?.takeIf { id -> categories.any { it.id == id } },
+            tagId = state.tagId?.takeIf { id -> tags.any { it.id == id } },
             // The selection follows changes, and goes when the waypoint does
             selected = state.selected?.let { selected -> waypoints.find { it.id == selected.id } },
         )
@@ -59,6 +76,11 @@ class MapViewModel @Inject constructor(private val diary: DiaryRepository) : Vie
             }
         }
     }
+
+    /** Shows only [categoryId]'s waypoints; the same again shows all. */
+    fun filterCategory(categoryId: Int) = local.update { it.copy(categoryId = categoryId.takeIf { id -> id != it.categoryId }) }
+
+    fun filterTag(tagId: Int) = local.update { it.copy(tagId = tagId.takeIf { id -> id != it.tagId }) }
 
     fun select(id: Int?) = local.update { state -> state.copy(selected = id?.let { diary.waypoint(it) }) }
 

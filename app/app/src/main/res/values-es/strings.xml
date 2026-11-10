@@ -46,4 +46,27 @@
     <string name="waypoint_delete_title">¿Eliminar el punto?</string>
     <string name="waypoint_delete_text">«%1$s» se eliminará, también en la web.</string>
     <string name="waypoint_deleted">El punto se ha eliminado.</string>
+
+    <string name="manage_title">Categorías y etiquetas</string>
+    <string name="manage_categories">Categorías</string>
+    <string name="manage_tags">Etiquetas</string>
+    <string name="manage_no_categories">Todavía no hay categorías. Una categoría da a sus puntos un color en el mapa.</string>
+    <string name="manage_no_tags">Todavía no hay etiquetas. Las etiquetas te ayudan a encontrar los puntos.</string>
+    <string name="manage_add">Añadir: %1$s</string>
+    <string name="manage_new_category">Nueva categoría</string>
+    <string name="manage_edit_category">Editar categoría</string>
+    <string name="manage_new_tag">Nueva etiqueta</string>
+    <string name="manage_edit_tag">Editar etiqueta</string>
+    <string name="manage_name">Nombre</string>
+    <string name="manage_icon">Icono (opcional)</string>
+    <string name="manage_icon_help">Un nombre de Material Symbols como hiking</string>
+    <string name="manage_delete_category">¿Eliminar la categoría «%1$s»? Sus puntos se mantienen.</string>
+    <string name="manage_delete_tag">¿Eliminar la etiqueta «%1$s»? Sus puntos se mantienen.</string>
+    <string name="map_shown">%1$d de %2$d</string>
+
+    <plurals name="waypoint_count">
+        <item quantity="one">%d punto</item>
+        <item quantity="many">%d puntos</item>
+        <item quantity="other">%d puntos</item>
+    </plurals>
 </resources>
