@@ -341,6 +341,10 @@ fun MapScreen(
             track = track,
             busy = trackState.busy,
             onDismiss = { trackActions.select(null) },
+            onShowOnMap = {
+                trackActions.select(null)
+                focusPoints = track.points.filter { it.size >= 2 }.map { Point.fromLngLat(it[1], it[0]) }
+            },
             onHide = {
                 trackActions.select(null)
                 trackActions.toggleVisible(track.id)

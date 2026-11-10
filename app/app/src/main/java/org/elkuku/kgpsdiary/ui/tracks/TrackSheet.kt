@@ -48,7 +48,7 @@ fun trackDetails(track: Track): String {
 }
 
 /**
- * What can be done with a track, from the list ([onShowOnMap]) or from the map ([onHide]).
+ * What can be done with a track: [onShowOnMap] fits the map to it, [onHide] (on the map) takes it off.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +77,7 @@ fun TrackSheet(
                     }
                 }
                 onHide?.let {
-                    FilledIconButton(onClick = it) {
+                    OutlinedIconButton(onClick = it) {
                         Icon(painterResource(R.drawable.ic_visibility_off), contentDescription = stringResource(R.string.track_hide))
                     }
                 }
