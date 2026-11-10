@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "symfony",
+      "runtimeArgs": ["server:start", "--dir=web", "--port=8000", "--no-tls"],
+      "port": 8000
+    }
+  ]
+}

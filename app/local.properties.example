@@ -16,3 +16,7 @@ release.storeFile=
 release.storePassword=
 release.keyAlias=kgpsdiary
 release.keyPassword=
+
+# Debug builds only: skip Google and send fake tokens for this email address.
+# Needs APP_FAKE_GOOGLE_TOKENS=1 in web/.env.local (dev env). Leave empty for real sign-in.
+debug.fakeSignInEmail=

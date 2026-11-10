@@ -2,4 +2,22 @@
 <resources>
     <string name="app_name" translatable="false">KGPSDiary</string>
     <string name="welcome_tagline">Your GPS diary of places and waypoints.</string>
+
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_out">Sign out</string>
+    <string name="refresh">Refresh</string>
+    <string name="sign_in_cancelled">Sign-in cancelled.</string>
+    <string name="sign_in_no_account">No Google account available on this device.</string>
+    <string name="sign_in_failed">Sign-in failed: %1$s</string>
+    <string name="sign_in_invalid_token">Invalid Google ID token: %1$s</string>
+    <string name="sign_in_no_email">The Google account has no email address.</string>
+
+    <string name="profile_server_account">Account #%1$d, %2$s</string>
+    <string name="role_user">user</string>
+    <string name="role_admin">administrator</string>
+
+    <string name="error_unauthorized">The server did not accept the sign-in. Please sign in again.</string>
+    <string name="error_network">The server could not be reached: %1$s</string>
+    <string name="error_server">The server answered with error %1$d.</string>
+    <string name="error_response">The server sent an unexpected answer: %1$s</string>
 </resources>

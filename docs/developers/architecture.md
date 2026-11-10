@@ -12,6 +12,14 @@ Browser ──Sign in with Google──────────▶ Symfony web a
 
 Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 
+| Area | Where | What |
+|---|---|---|
+| Sign-in | `auth/GoogleAuth.kt` | Credential Manager "Sign in with Google" with the **Web** client ID as `serverClientId`. Debug builds can use `FakeGoogleAuth` (`src/debug`). |
+| Session | `auth/SessionManager.kt` | The signed-in account; API calls with its token, refreshed silently and retried once on `401`. |
+| API client | `data/KgpsApi.kt` | Ktor client for the JSON-LD API; answers become `ApiResult`s with the server's messages. |
+| DI | `di/` | Hilt modules: the HTTP client and server URL, the Google sign-in per build type. |
+| UI | `ui/` | `MainViewModel`, the sign-in and profile screens. |
+
 Configuration comes from `app/local.properties` (see `local.properties.example`) and is compiled
 into `BuildConfig` and resources:
 
@@ -20,6 +28,7 @@ into `BuildConfig` and resources:
 | `google.serverClientId` | `BuildConfig.GOOGLE_SERVER_CLIENT_ID`, the Web OAuth client ID |
 | `server.baseUrl.debug`, `server.baseUrl.release` | `BuildConfig.SERVER_BASE_URL` per build type |
 | `mapbox.accessToken` | string resource `mapbox_access_token`, read by the Mapbox SDK |
+| `debug.fakeSignInEmail` | debug only: `BuildConfig.FAKE_SIGN_IN_EMAIL`, sign in with fake tokens |
 | `release.*` | release signing |
 
 Languages: English, German, Spanish (`res/values{,-de,-es}`).
@@ -28,7 +37,13 @@ Languages: English, German, Spanish (`res/values{,-de,-es}`).
 
 Based on [elkuku/symfony-playground-two](https://github.com/elkuku/symfony-playground-two):
 Symfony 8, Doctrine ORM on PostgreSQL, Twig with Bootstrap and Stimulus (Asset Mapper, no Node
-build). API Platform and the Google token authenticator for the app are added in M1/M2.
+build), and API Platform for the [API](api.md).
+
+| Area | Where | What |
+|---|---|---|
+| Security | `src/Security/` | `GoogleIdentityAuthenticator` (web button, with Google's CSRF cookie), `GoogleApiTokenAuthenticator` (API bearer token), both through `GoogleIdTokenVerifier` and `GoogleUserResolver`. |
+| API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |
+| Pages | `src/Controller/` | One class per action: login, profile, the user admin. |
 
 ## Authentication
 

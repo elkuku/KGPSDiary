@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="welcome_tagline">Tu diario GPS de lugares y puntos de referencia.</string>
+
+    <string name="sign_in_with_google">Iniciar sesión con Google</string>
+    <string name="sign_out">Cerrar sesión</string>
+    <string name="refresh">Actualizar</string>
+    <string name="sign_in_cancelled">Inicio de sesión cancelado.</string>
+    <string name="sign_in_no_account">No hay ninguna cuenta de Google disponible en este dispositivo.</string>
+    <string name="sign_in_failed">Falló el inicio de sesión: %1$s</string>
+    <string name="sign_in_invalid_token">Token de ID de Google no válido: %1$s</string>
+    <string name="sign_in_no_email">La cuenta de Google no tiene dirección de correo.</string>
+
+    <string name="profile_server_account">Cuenta n.º %1$d, %2$s</string>
+    <string name="role_user">usuario</string>
+    <string name="role_admin">administrador</string>
+
+    <string name="error_unauthorized">El servidor no aceptó el inicio de sesión. Vuelve a iniciar sesión.</string>
+    <string name="error_network">No se pudo conectar con el servidor: %1$s</string>
+    <string name="error_server">El servidor respondió con el error %1$d.</string>
+    <string name="error_response">El servidor envió una respuesta inesperada: %1$s</string>
 </resources>

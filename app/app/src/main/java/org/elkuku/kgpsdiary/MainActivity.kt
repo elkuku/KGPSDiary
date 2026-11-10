@@ -4,50 +4,70 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.AndroidEntryPoint
+import org.elkuku.kgpsdiary.ui.MainViewModel
+import org.elkuku.kgpsdiary.ui.ProfileScreen
+import org.elkuku.kgpsdiary.ui.SignInScreen
 import org.elkuku.kgpsdiary.ui.theme.KGPSDiaryTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             KGPSDiaryTheme {
-                WelcomeScreen()
+                KGPSDiaryApp()
             }
         }
     }
 }
 
-// Placeholder start screen until the map arrives (M4)
 @Composable
-fun WelcomeScreen() {
-    Scaffold { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
-            Text(stringResource(R.string.welcome_tagline), style = MaterialTheme.typography.bodyLarge)
+fun KGPSDiaryApp(viewModel: MainViewModel = hiltViewModel()) {
+    // The Activity: Credential Manager shows its UI on top of it
+    val context = LocalContext.current
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val message = state.message?.asString()
+
+    LaunchedEffect(Unit) { viewModel.start(context) }
+    LaunchedEffect(message) {
+        if (message != null) {
+            snackbarHostState.showSnackbar(message)
+            viewModel.dismissMessage()
         }
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-private fun WelcomeScreenPreview() {
-    KGPSDiaryTheme { WelcomeScreen() }
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
+        val modifier = Modifier.padding(padding)
+        when {
+            !state.started -> Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            state.signedIn -> ProfileScreen(
+                state = state,
+                onRefresh = { viewModel.refresh(context) },
+                onSignOut = { viewModel.signOut(context) },
+                modifier = modifier,
+            )
+            else -> SignInScreen(busy = state.busy, onSignIn = { viewModel.signIn(context) }, modifier = modifier)
+        }
+    }
 }

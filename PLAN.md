@@ -109,8 +109,8 @@ The server verifies every token against the Web client ID and requires a verifie
 
 | # | Milestone | Done when |
 |---|---|---|
-| M0 | Scaffold | Git repo with `app/`, `web/` and `docs/`. `web` is copied from the template and runs with `bin/start`. An empty `app` builds. There is CI for both (GitHub Actions). |
-| M1 | Sign-in | Google sign-in works on the web page and in the app. `/api/me` answers with the Bearer token. |
+| M0 ✅ | Scaffold | Git repo with `app/`, `web/` and `docs/`. `web` is copied from the template and runs with `bin/start`. An empty `app` builds. There is CI for both (GitHub Actions). |
+| M1 ✅ | Sign-in | Google sign-in works on the web page and in the app. `/api/me` answers with the Bearer token. |
 | M2 | Waypoints API | Entities, migrations, API resources and voters. PHPUnit tests for the API and for access to other users' data. |
 | M3 | Web map | The map page shows your waypoints and can create, edit and delete them. |
 | M4 | App map | The Mapbox map in the app with markers from the API, long-press to create, a detail sheet and an edit screen. |

@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="welcome_tagline">Dein GPS-Tagebuch für Orte und Wegpunkte.</string>
+
+    <string name="sign_in_with_google">Mit Google anmelden</string>
+    <string name="sign_out">Abmelden</string>
+    <string name="refresh">Aktualisieren</string>
+    <string name="sign_in_cancelled">Anmeldung abgebrochen.</string>
+    <string name="sign_in_no_account">Auf diesem Gerät ist kein Google-Konto verfügbar.</string>
+    <string name="sign_in_failed">Anmeldung fehlgeschlagen: %1$s</string>
+    <string name="sign_in_invalid_token">Ungültiger Google-ID-Token: %1$s</string>
+    <string name="sign_in_no_email">Das Google-Konto hat keine E-Mail-Adresse.</string>
+
+    <string name="profile_server_account">Konto Nr. %1$d, %2$s</string>
+    <string name="role_user">Benutzer</string>
+    <string name="role_admin">Administrator</string>
+
+    <string name="error_unauthorized">Der Server hat die Anmeldung nicht akzeptiert. Bitte melde dich erneut an.</string>
+    <string name="error_network">Der Server ist nicht erreichbar: %1$s</string>
+    <string name="error_server">Der Server hat mit Fehler %1$d geantwortet.</string>
+    <string name="error_response">Der Server hat eine unerwartete Antwort gesendet: %1$s</string>
 </resources>

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-An opinionated Symfony 8.x project template for user management with social OAuth login (Google, GitHub, GitLab). In `dev` it uses a form-based login; in `prod` it uses social login only.
+The web app and API of KGPSDiary (see ../PLAN.md and ../docs/developers), built from the symfony-playground-two template. Users sign in with Google only: the "Sign in with Google" button on the web, a Google ID token as bearer token on the API (used by the Android app in ../app). In `dev` a form-based login is available too.
 
 ## Commands
 
@@ -39,20 +39,26 @@ symfony console user-admin  # Interactive user management CLI
 ## Architecture
 
 ### Entities & Enums
-- **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. OAuth IDs (`googleId`, `gitHubId`, `gitLabId`) are nullable. Role is stored via `UserRole` enum.
+- **`User`** (`system_user` table) — single entity, implements `UserInterface`. Uses `identifier` (unique string) as the username. `googleId` is nullable until the user first signs in with Google. Role is stored via `UserRole` enum.
 - **`UserRole`** enum — `ROLE_USER` (default) and `ROLE_ADMIN`.
 
 ### Controllers
 Single-action controller pattern under `src/Controller/`:
 - `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class
-- `Security/` — OAuth authenticators (Google, GitHub, GitLab) plus `LoginFormController` and `Logout`
+- `Security/` — `GoogleIdentityController` (route for the Google button), `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
 - `ProfileController`, `DefaultController`
 
 Access control uses `#[IsGranted()]` attributes.
 
 ### Security
-Multi-authenticator: form login (dev only) + OAuth2 via `knpuniversity/oauth2-client-bundle`. Remember-me is enabled.
+- `main` firewall: `LoginFormAuthenticator` (dev/test only) and `GoogleIdentityAuthenticator` (posts from Google's button to `/connect/google/verify`, checks Google's `g_csrf_token` double-submit cookie). Remember-me is enabled.
+- `api` firewall (`^/api/`, stateless): `GoogleApiTokenAuthenticator` reads `Authorization: Bearer <Google ID token>`; errors are `application/problem+json`.
+- Both verify tokens through `GoogleIdTokenVerifierInterface` (`GoogleIdTokenVerifier`, audience `OAUTH_GOOGLE_ID`) and find or register the user with `GoogleUserResolver` (by Google ID, else by email, else new `ROLE_USER`; the email must be verified).
+- Tests use `FakeGoogleIdTokenVerifier` (tokens from `FakeGoogleIdTokenVerifier::token()`); in dev `DevGoogleIdTokenVerifier` accepts them too when `APP_FAKE_GOOGLE_TOKENS=1`.
+
+### API
+API Platform under `/api` (docs at `/api/docs`). Resources in `src/ApiResource/`, providers/processors in `src/State/`. `GET /api/me` returns the signed-in user.
 
 ### Frontend
 Asset Mapper (no Webpack), Bootstrap, Stimulus, Twig Components, UX Icons.
@@ -64,7 +70,6 @@ PostgreSQL via Docker Compose. Doctrine ORM with migrations. Fixtures in `src/Da
 `KuKuSFSystemToolsBundle` — provides system utility endpoints (about, log viewer).
 
 ## Environment Variables
-OAuth credentials go in `.env.local` (gitignored):
-- `OAUTH_GOOGLE_ID`, `OAUTH_GOOGLE_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_API_KEY`, `GOOGLE_AUTH_CONFIG`
-- `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET`
-- `OAUTH_GITLAB_CLIENT_ID`, `OAUTH_GITLAB_CLIENT_SECRET`
+Secrets go in `.env.local` (gitignored):
+- `OAUTH_GOOGLE_ID`: the Web OAuth client ID of the KGPSDiary Google Cloud project (the app's `google.serverClientId`)
+- `APP_FAKE_GOOGLE_TOKENS=1`: dev only, accept fake ID tokens on the API (for the debug app's fake sign-in)
