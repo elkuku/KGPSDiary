@@ -51,7 +51,8 @@ Single-action controller pattern under `src/Controller/`:
 - `User/` — CRUD (Index, Create, Read, Update, Delete), each in its own class
 - `Security/` — `GoogleIdentityController` (route for the Google button), `LoginFormController` and `Logout`
 - `System/` — `AboutController`, `LogviewController`
-- `ProfileController`, `DefaultController`
+- `Waypoint/` — the diary on the web: `Map` (`/map`), `Features` (`/map/waypoints.geojson`), `Create`, `Read`, `Update`, `Delete`; other users' waypoints are 404 (`IsGranted(OWNER, statusCode: 404)`)
+- `ProfileController`, `DefaultController` (start page)
 
 Access control uses `#[IsGranted()]` attributes.
 
@@ -65,7 +66,7 @@ Access control uses `#[IsGranted()]` attributes.
 API Platform under `/api` (docs at `/api/docs`). Resources in `src/ApiResource/`, providers/processors in `src/State/`. `GET /api/me` returns the signed-in user. The endpoints are documented in ../docs/developers/api.md.
 
 ### Frontend
-Asset Mapper (no Webpack), Bootstrap, Stimulus, Twig Components, UX Icons.
+Asset Mapper (no Webpack), Bootstrap, Stimulus, Twig Components, UX Icons. The map is `assets/controllers/map_controller.js` with Mapbox GL JS from the importmap; the token is the Twig global `mapbox_token` (`MAPBOX_TOKEN`). Texts are translated (`translations/messages+intl-icu.{en,de,es}.yaml`), the locale comes from `Accept-Language`.
 
 ### Database
 PostgreSQL via Docker Compose. Doctrine ORM with migrations. Fixtures in `src/DataFixtures/` create one regular user and one admin.
@@ -76,4 +77,5 @@ PostgreSQL via Docker Compose. Doctrine ORM with migrations. Fixtures in `src/Da
 ## Environment Variables
 Secrets go in `.env.local` (gitignored):
 - `OAUTH_GOOGLE_ID`: the Web OAuth client ID of the KGPSDiary Google Cloud project (the app's `google.serverClientId`)
+- `MAPBOX_TOKEN`: Mapbox public token (`pk.…`) for the web map
 - `APP_FAKE_GOOGLE_TOKENS=1`: dev only, accept fake ID tokens on the API (for the debug app's fake sign-in)

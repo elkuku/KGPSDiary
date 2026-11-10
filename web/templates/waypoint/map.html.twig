@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'map.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+        <h2 class="h4 mb-0">{{ 'map.title'|trans }}</h2>
+        <a class="btn btn-success btn-sm" href="{{ path('app_waypoint_new') }}">
+            <twig:ux:icon name="bi:plus-lg" /> {{ 'waypoint.new'|trans }}
+        </a>
+    </div>
+    <p class="text-body-secondary small mb-2">{{ 'map.hint'|trans }}</p>
+
+    <div class="waypoint-map rounded border"
+         {{ stimulus_controller('map', {
+             token: mapbox_token,
+             featuresUrl: path('app_waypoint_features'),
+             newUrl: path('app_waypoint_new'),
+             center: center,
+             labels: {
+                 addHere: 'map.add_here'|trans,
+                 open: 'map.open'|trans,
+                 noToken: 'map.no_token'|trans,
+                 loadFailed: 'map.load_failed'|trans,
+             },
+         }) }}></div>
+{% endblock %}

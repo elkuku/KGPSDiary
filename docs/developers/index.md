@@ -17,7 +17,9 @@ bin/start     # Docker + Symfony server on https://127.0.0.1:8000
 make tests    # PHPUnit, PHPStan, Rector, PHP-CS-Fixer
 ```
 
-Secrets go to `web/.env.local` (git-ignored): `OAUTH_GOOGLE_ID`, and later `MAPBOX_TOKEN`.
+Secrets go to `web/.env.local` (git-ignored): `OAUTH_GOOGLE_ID` for the Google sign-in, and
+`MAPBOX_TOKEN` (a Mapbox public token, `pk.…`) for the map at `/map`. In dev, `/login` also has a
+form to sign in as any user without Google, e.g. the fixture users `user` and `admin`.
 
 ### App
 

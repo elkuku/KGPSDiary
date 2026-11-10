@@ -1,0 +1,38 @@
+nav:
+    map: Karte
+home:
+    tagline: Dein GPS-Tagebuch für Orte und Wegpunkte.
+    waypoint_count: '{count, plural, =0 {Du hast noch keine Wegpunkte.} one {Du hast einen Wegpunkt.} other {Du hast # Wegpunkte.}}'
+    open_map: Karte öffnen
+    sign_in: Anmelden
+map:
+    title: Karte
+    hint: Klicke auf die Karte, um dort einen Wegpunkt anzulegen, oder auf einen Wegpunkt, um ihn anzusehen.
+    add_here: Hier einen Wegpunkt anlegen
+    open: Öffnen
+    no_token: Die Karte braucht einen Mapbox-Zugriffstoken (MAPBOX_TOKEN).
+    load_failed: Die Wegpunkte konnten nicht geladen werden.
+waypoint:
+    new: Neuer Wegpunkt
+    edit: Wegpunkt bearbeiten
+    save: Speichern
+    cancel: Abbrechen
+    delete: Löschen
+    delete_confirm: Diesen Wegpunkt löschen?
+    back_to_map: Zurück zur Karte
+    show_on_map: Auf der Karte zeigen
+    visited_on: 'Besucht am {date}'
+    saved_at: 'Angelegt {created}, geändert {updated}'
+    title: Titel
+    description: Beschreibung
+    latitude: Breitengrad
+    longitude: Längengrad
+    visited_at: Besucht am
+    category: Kategorie
+    no_category: Keine Kategorie
+    tags: Tags
+    flash:
+        created: Der Wegpunkt wurde gespeichert.
+        updated: Der Wegpunkt wurde aktualisiert.
+        deleted: Der Wegpunkt wurde gelöscht.
+        invalid_token: Das Formular ist abgelaufen, bitte versuche es noch einmal.

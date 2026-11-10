@@ -1,0 +1,5 @@
+<form method="post" action="{{ path('app_waypoint_delete', {id: waypoint.id}) }}"
+      onsubmit="return confirm({{ 'waypoint.delete_confirm'|trans|json_encode|e('html_attr') }});">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete-waypoint-' ~ waypoint.id) }}">
+    <button class="btn btn-outline-danger">{{ 'waypoint.delete'|trans }}</button>
+</form>

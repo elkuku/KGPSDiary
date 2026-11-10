@@ -1,0 +1,38 @@
+nav:
+    map: Mapa
+home:
+    tagline: Tu diario GPS de lugares y puntos de referencia.
+    waypoint_count: '{count, plural, =0 {Todavía no tienes puntos.} one {Tienes un punto.} other {Tienes # puntos.}}'
+    open_map: Abrir el mapa
+    sign_in: Iniciar sesión
+map:
+    title: Mapa
+    hint: Haz clic en el mapa para añadir un punto allí, o en un punto para verlo.
+    add_here: Añadir un punto aquí
+    open: Abrir
+    no_token: El mapa necesita un token de acceso de Mapbox (MAPBOX_TOKEN).
+    load_failed: No se pudieron cargar los puntos.
+waypoint:
+    new: Nuevo punto
+    edit: Editar punto
+    save: Guardar
+    cancel: Cancelar
+    delete: Eliminar
+    delete_confirm: ¿Eliminar este punto?
+    back_to_map: Volver al mapa
+    show_on_map: Mostrar en el mapa
+    visited_on: 'Visitado el {date}'
+    saved_at: 'Creado {created}, modificado {updated}'
+    title: Título
+    description: Descripción
+    latitude: Latitud
+    longitude: Longitud
+    visited_at: Visitado el
+    category: Categoría
+    no_category: Sin categoría
+    tags: Etiquetas
+    flash:
+        created: El punto se ha guardado.
+        updated: El punto se ha actualizado.
+        deleted: El punto se ha eliminado.
+        invalid_token: El formulario ha caducado, inténtalo de nuevo.

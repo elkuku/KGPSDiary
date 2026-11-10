@@ -51,6 +51,8 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         # API operations check their role themselves (#[ApiResource] security), so /api/docs stays public
+        # Signed-out visitors go to the login, before a missing waypoint would be a 404
+        - { path: ^/(map|waypoints)(/|$), roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

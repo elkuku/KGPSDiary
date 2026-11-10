@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ waypoint.title }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="mt-4">
+        {% if waypoint.category %}
+            <span class="badge" style="background-color: {{ waypoint.category.color }}">{{ waypoint.category.name }}</span>
+        {% endif %}
+        {% for tag in waypoint.tags %}
+            <span class="badge text-bg-secondary">{{ tag.name }}</span>
+        {% endfor %}
+    </div>
+    <h2 class="mt-1">{{ waypoint.title }}</h2>
+
+    <p class="text-body-secondary">
+        {% if waypoint.visitedAt %}
+            {{ 'waypoint.visited_on'|trans({date: waypoint.visitedAt|date('Y-m-d')}) }} ·
+        {% endif %}
+        <span class="font-monospace">{{ waypoint.latitude|number_format(6) }}, {{ waypoint.longitude|number_format(6) }}</span>
+    </p>
+
+    {% if waypoint.description %}
+        <div class="mb-4" style="white-space: pre-line">{{ waypoint.description }}</div>
+    {% endif %}
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="{{ path('app_waypoint_edit', {id: waypoint.id}) }}">{{ 'waypoint.edit'|trans }}</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_waypoint_map', {latitude: waypoint.latitude, longitude: waypoint.longitude}) }}">{{ 'waypoint.show_on_map'|trans }}</a>
+        {{ include('waypoint/_delete_form.html.twig') }}
+    </div>
+
+    <p class="text-body-secondary small mt-4">
+        {{ 'waypoint.saved_at'|trans({created: waypoint.createdAt|date('Y-m-d H:i'), updated: waypoint.updatedAt|date('Y-m-d H:i')}) }}
+    </p>
+{% endblock %}

@@ -45,7 +45,9 @@ build), and API Platform for the [API](api.md).
 | Owner scoping | `src/Doctrine/`, `src/State/`, `src/Security/Voter/`, `src/Validator/` | Users only see and change their own records, admins too. |
 | Security | `src/Security/` | `GoogleIdentityAuthenticator` (web button, with Google's CSRF cookie), `GoogleApiTokenAuthenticator` (API bearer token), both through `GoogleIdTokenVerifier` and `GoogleUserResolver`. |
 | API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |
-| Pages | `src/Controller/` | One class per action: login, profile, the user admin. |
+| Pages | `src/Controller/` | One class per action: login, profile, the user admin, and the diary in `Waypoint/`: the map, its GeoJSON, and creating, showing, editing and deleting waypoints. |
+| Map | `assets/controllers/map_controller.js` | Stimulus controller with Mapbox GL JS (from the importmap): clustered waypoints in their category colors; a click on the map offers a new waypoint there. |
+| Languages | `translations/` | English, German, Spanish (ICU messages), picked by the browser's `Accept-Language`. |
 
 ## Authentication
 

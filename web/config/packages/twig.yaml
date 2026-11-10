@@ -2,6 +2,9 @@ twig:
     file_name_pattern: '*.twig'
     form_themes:
         - 'bootstrap_5_layout.html.twig'
+    globals:
+        # Mapbox public access token (pk.…) for the maps
+        mapbox_token: '%env(MAPBOX_TOKEN)%'
 
 when@test:
     twig:

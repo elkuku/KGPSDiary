@@ -32,6 +32,6 @@ class AdminAccessTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h4', 'Welcome admin');
+        self::assertSelectorExists('a[href="/map"]');
     }
 }

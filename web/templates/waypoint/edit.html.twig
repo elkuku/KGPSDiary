@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ waypoint.title }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h2 class="mt-4">{{ 'waypoint.edit'|trans }}</h2>
+
+    {{ include('waypoint/_form.html.twig', {button_label: 'waypoint.save'}) }}
+
+    <div class="d-flex justify-content-between mt-3">
+        <a class="btn btn-link px-0" href="{{ path('app_waypoint_show', {id: waypoint.id}) }}">{{ 'waypoint.cancel'|trans }}</a>
+        {{ include('waypoint/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

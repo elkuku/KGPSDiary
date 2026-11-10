@@ -10,3 +10,11 @@ main > .container {
     background-size: contain;
     background-repeat: no-repeat;
 }
+.waypoint-map {
+    height: calc(100vh - 230px);
+    min-height: 320px;
+}
+
+.mapboxgl-popup-content {
+    color: #212529;
+}

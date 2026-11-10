@@ -1,0 +1,18 @@
+{{ form_start(form) }}
+    {{ form_row(form.title) }}
+    {{ form_row(form.description) }}
+    <div class="row">
+        <div class="col-sm-6">{{ form_row(form.latitude) }}</div>
+        <div class="col-sm-6">{{ form_row(form.longitude) }}</div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">{{ form_row(form.visitedAt) }}</div>
+        <div class="col-sm-6">{{ form_row(form.category) }}</div>
+    </div>
+    {% if form.tags.children is not empty %}
+        {{ form_row(form.tags) }}
+    {% else %}
+        {% do form.tags.setRendered %}
+    {% endif %}
+    <button class="btn btn-primary">{{ button_label|trans }}</button>
+{{ form_end(form) }}

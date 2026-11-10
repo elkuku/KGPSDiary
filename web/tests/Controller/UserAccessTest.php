@@ -32,6 +32,6 @@ class UserAccessTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h4', 'Welcome user');
+        self::assertSelectorExists('a[href="/map"]');
     }
 }

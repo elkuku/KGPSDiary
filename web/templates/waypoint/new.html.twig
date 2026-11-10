@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'waypoint.new'|trans }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h2 class="mt-4">{{ 'waypoint.new'|trans }}</h2>
+
+    {{ include('waypoint/_form.html.twig', {button_label: 'waypoint.save'}) }}
+
+    <a class="btn btn-link mt-2 px-0" href="{{ path('app_waypoint_map') }}">{{ 'waypoint.back_to_map'|trans }}</a>
+{% endblock %}

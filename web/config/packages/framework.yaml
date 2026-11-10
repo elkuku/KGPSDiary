@@ -5,6 +5,10 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # English, German, Spanish: picked by the browser's Accept-Language
+    enabled_locales: ['en', 'de', 'es']
+    set_locale_from_accept_language: true
+
     #esi: true
     #fragments: true
 

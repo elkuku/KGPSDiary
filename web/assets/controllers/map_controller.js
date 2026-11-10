@@ -1,0 +1,173 @@
+import { Controller } from '@hotwired/stimulus';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.min.css';
+
+const SOURCE = 'waypoints';
+
+/**
+ * The user's waypoints on a Mapbox map, in their category colors and clustered when zoomed out.
+ * A click on a waypoint shows it, a click elsewhere offers a new waypoint at that place.
+ */
+export default class extends Controller {
+    static values = {
+        token: String,
+        featuresUrl: String,
+        newUrl: String,
+        center: Array,
+        labels: Object,
+    };
+
+    connect() {
+        if (!this.tokenValue) {
+            this.showMessage(this.labelsValue.noToken, 'warning');
+            return;
+        }
+
+        mapboxgl.accessToken = this.tokenValue;
+        this.map = new mapboxgl.Map({
+            container: this.element,
+            style: 'mapbox://styles/mapbox/outdoors-v12',
+            center: this.hasCenterValue && this.centerValue.length === 2 ? this.centerValue : [0, 20],
+            zoom: this.hasCenterValue && this.centerValue.length === 2 ? 14 : 1.5,
+        });
+        this.map.addControl(new mapboxgl.NavigationControl());
+        this.map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true } }));
+        this.map.addControl(new mapboxgl.ScaleControl());
+
+        this.map.on('load', () => this.load());
+        this.map.on('click', (event) => this.click(event));
+    }
+
+    disconnect() {
+        this.map?.remove();
+        this.map = null;
+    }
+
+    async load() {
+        let data;
+        try {
+            const response = await fetch(this.featuresUrlValue, { headers: { Accept: 'application/geo+json' } });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            data = await response.json();
+        } catch (error) {
+            console.error(error);
+            this.showMessage(this.labelsValue.loadFailed, 'danger');
+            return;
+        }
+
+        this.map.addSource(SOURCE, { type: 'geojson', data, cluster: true, clusterRadius: 40, clusterMaxZoom: 13 });
+        this.map.addLayer({
+            id: 'clusters',
+            type: 'circle',
+            source: SOURCE,
+            filter: ['has', 'point_count'],
+            paint: {
+                'circle-color': '#455a64',
+                'circle-radius': ['step', ['get', 'point_count'], 16, 10, 20, 50, 26],
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#ffffff',
+            },
+        });
+        this.map.addLayer({
+            id: 'cluster-count',
+            type: 'symbol',
+            source: SOURCE,
+            filter: ['has', 'point_count'],
+            layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 13 },
+            paint: { 'text-color': '#ffffff' },
+        });
+        this.map.addLayer({
+            id: 'waypoints',
+            type: 'circle',
+            source: SOURCE,
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+                'circle-color': ['get', 'color'],
+                'circle-radius': 8,
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#ffffff',
+            },
+        });
+
+        for (const layer of ['clusters', 'waypoints']) {
+            this.map.on('mouseenter', layer, () => (this.map.getCanvas().style.cursor = 'pointer'));
+            this.map.on('mouseleave', layer, () => (this.map.getCanvas().style.cursor = ''));
+        }
+
+        if (!(this.hasCenterValue && this.centerValue.length === 2) && data.features.length > 0) {
+            const bounds = new mapboxgl.LngLatBounds();
+            data.features.forEach((feature) => bounds.extend(feature.geometry.coordinates));
+            this.map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 0 });
+        }
+    }
+
+    click(event) {
+        const layers = ['clusters', 'waypoints'].filter((layer) => this.map.getLayer(layer));
+        const [feature] = layers.length ? this.map.queryRenderedFeatures(event.point, { layers }) : [];
+
+        if (feature?.properties.cluster) {
+            this.map.getSource(SOURCE).getClusterExpansionZoom(feature.properties.cluster_id, (error, zoom) => {
+                if (!error) {
+                    this.map.easeTo({ center: feature.geometry.coordinates, zoom });
+                }
+            });
+        } else if (feature) {
+            this.popup(feature.geometry.coordinates, this.waypointContent(feature.properties));
+        } else {
+            this.popup(event.lngLat, this.newWaypointContent(event.lngLat));
+        }
+    }
+
+    popup(lngLat, content) {
+        this.currentPopup?.remove();
+        this.currentPopup = new mapboxgl.Popup({ offset: 12 }).setLngLat(lngLat).setDOMContent(content).addTo(this.map);
+    }
+
+    waypointContent(properties) {
+        const content = document.createElement('div');
+        const title = document.createElement('strong');
+        title.textContent = properties.title;
+        content.append(title);
+
+        const details = [properties.category, properties.visitedAt].filter(Boolean).join(' · ');
+        if (details) {
+            const small = document.createElement('div');
+            small.className = 'small text-body-secondary';
+            small.textContent = details;
+            content.append(small);
+        }
+
+        content.append(this.link(properties.url, this.labelsValue.open));
+        return content;
+    }
+
+    newWaypointContent(lngLat) {
+        const url = new URL(this.newUrlValue, window.location.origin);
+        url.searchParams.set('latitude', lngLat.lat.toFixed(6));
+        url.searchParams.set('longitude', lngLat.lng.toFixed(6));
+
+        const content = document.createElement('div');
+        const position = document.createElement('div');
+        position.className = 'small font-monospace';
+        position.textContent = `${lngLat.lat.toFixed(5)}, ${lngLat.lng.toFixed(5)}`;
+        content.append(position, this.link(url.toString(), this.labelsValue.addHere));
+        return content;
+    }
+
+    link(href, text) {
+        const link = document.createElement('a');
+        link.href = href;
+        link.className = 'd-block mt-1';
+        link.textContent = text;
+        return link;
+    }
+
+    showMessage(text, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} m-3`;
+        alert.textContent = text;
+        this.element.replaceChildren(alert);
+    }
+}

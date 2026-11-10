@@ -1,0 +1,38 @@
+nav:
+    map: Map
+home:
+    tagline: Your GPS diary of places and waypoints.
+    waypoint_count: '{count, plural, =0 {You have no waypoints yet.} one {You have one waypoint.} other {You have # waypoints.}}'
+    open_map: Open the map
+    sign_in: Sign in
+map:
+    title: Map
+    hint: Click on the map to add a waypoint there, or on a waypoint to see it.
+    add_here: Add a waypoint here
+    open: Open
+    no_token: The map needs a Mapbox access token (MAPBOX_TOKEN).
+    load_failed: The waypoints could not be loaded.
+waypoint:
+    new: New waypoint
+    edit: Edit waypoint
+    save: Save
+    cancel: Cancel
+    delete: Delete
+    delete_confirm: Delete this waypoint?
+    back_to_map: Back to the map
+    show_on_map: Show on the map
+    visited_on: 'Visited on {date}'
+    saved_at: 'Created {created}, changed {updated}'
+    title: Title
+    description: Description
+    latitude: Latitude
+    longitude: Longitude
+    visited_at: Visited on
+    category: Category
+    no_category: No category
+    tags: Tags
+    flash:
+        created: The waypoint has been saved.
+        updated: The waypoint has been updated.
+        deleted: The waypoint has been deleted.
+        invalid_token: The form has expired, please try again.
