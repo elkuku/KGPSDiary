@@ -80,6 +80,11 @@ import java.time.format.FormatStyle
 import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.asString
 import org.elkuku.kgpsdiary.data.Category
+import org.elkuku.kgpsdiary.ui.photo.serverUrl
+import org.elkuku.kgpsdiary.ui.photo.PhotoViewer
+import org.elkuku.kgpsdiary.ui.photo.PhotoRow
+import org.elkuku.kgpsdiary.ui.photo.PhotoItem
+import org.elkuku.kgpsdiary.data.Photo
 import org.elkuku.kgpsdiary.data.Waypoint
 
 /**
@@ -295,6 +300,9 @@ private fun WaypointMarkers(waypoints: List<Waypoint>, viewportState: MapViewpor
 @Composable
 private fun WaypointSheet(waypoint: Waypoint, onDismiss: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
     var confirmDelete by remember { mutableStateOf(false) }
+    var viewing by remember { mutableStateOf<Photo?>(null) }
+
+    viewing?.let { PhotoViewer(it) { viewing = null } }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.padding(horizontal = 24.dp).padding(bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -319,6 +327,14 @@ private fun WaypointSheet(waypoint: Waypoint, onDismiss: () -> Unit, onEdit: () 
 
             if (waypoint.description.isNotBlank()) {
                 Text(waypoint.description, style = MaterialTheme.typography.bodyLarge, maxLines = 8)
+            }
+
+            if (waypoint.photos.isNotEmpty()) {
+                PhotoRow(
+                    waypoint.photos.map { photo ->
+                        PhotoItem(key = "p${photo.id}", model = serverUrl(photo.thumbnailUrl), onOpen = { viewing = photo })
+                    },
+                )
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {

@@ -69,4 +69,16 @@
         <item quantity="one">%d waypoint</item>
         <item quantity="other">%d waypoints</item>
     </plurals>
+
+    <string name="photo">Photo</string>
+    <string name="photos">Photos</string>
+    <string name="photo_add">Add photos</string>
+    <string name="photo_delete">Delete photo</string>
+    <string name="photo_delete_text">Delete this photo? It will be deleted on the web too.</string>
+    <string name="photo_unreadable">The photo could not be read: %1$s</string>
+
+    <plurals name="photos_pending">
+        <item quantity="one">%d photo will be uploaded when you save.</item>
+        <item quantity="other">%d photos will be uploaded when you save.</item>
+    </plurals>
 </resources>

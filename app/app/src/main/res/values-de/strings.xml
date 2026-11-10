@@ -68,4 +68,16 @@
         <item quantity="one">%d Wegpunkt</item>
         <item quantity="other">%d Wegpunkte</item>
     </plurals>
+
+    <string name="photo">Foto</string>
+    <string name="photos">Fotos</string>
+    <string name="photo_add">Fotos hinzufügen</string>
+    <string name="photo_delete">Foto löschen</string>
+    <string name="photo_delete_text">Dieses Foto löschen? Es wird auch im Web gelöscht.</string>
+    <string name="photo_unreadable">Das Foto konnte nicht gelesen werden: %1$s</string>
+
+    <plurals name="photos_pending">
+        <item quantity="one">%d Foto wird beim Speichern hochgeladen.</item>
+        <item quantity="other">%d Fotos werden beim Speichern hochgeladen.</item>
+    </plurals>
 </resources>

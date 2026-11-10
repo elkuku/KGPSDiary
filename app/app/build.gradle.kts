@@ -92,6 +92,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.androidx.navigation.compose)
+    // Photos, with the bearer token for the server's images
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.mapbox.android)
     implementation(libs.mapbox.compose)
 

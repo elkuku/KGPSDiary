@@ -16,6 +16,7 @@ androidxHilt = "1.4.0"
 ksp = "2.3.13"
 mapbox = "11.34.2"
 navigation = "2.10.2"
+coil = "3.6.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,8 @@ androidx-hilt-lifecycle-viewmodel-compose = { group = "androidx.hilt", name = "h
 mapbox-android = { group = "com.mapbox.maps", name = "android-ndk27", version.ref = "mapbox" }
 mapbox-compose = { group = "com.mapbox.extension", name = "maps-compose-ndk27", version.ref = "mapbox" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]

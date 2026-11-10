@@ -129,6 +129,16 @@ class Waypoint implements OwnedInterface
     #[Assert\All([new OwnedByUser()])]
     private Collection $tags;
 
+    /**
+     * Removed with the waypoint through Doctrine, so PhotoFileRemover deletes their files.
+     *
+     * @var Collection<int, Photo>
+     */
+    #[ORM\OneToMany(targetEntity: Photo::class, mappedBy: 'waypoint', cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['id' => \SortDirection::Ascending])]
+    #[Groups([self::READ])]
+    private Collection $photos;
+
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     #[Groups([self::READ])]
     private \DateTimeImmutable $createdAt;
@@ -140,6 +150,7 @@ class Waypoint implements OwnedInterface
     public function __construct()
     {
         $this->tags = new ArrayCollection();
+        $this->photos = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = $this->createdAt;
     }
@@ -247,6 +258,23 @@ class Waypoint implements OwnedInterface
     public function removeTag(Tag $tag): static
     {
         $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Photo>
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    public function addPhoto(Photo $photo): static
+    {
+        if (!$this->photos->contains($photo)) {
+            $this->photos->add($photo);
+        }
 
         return $this;
     }

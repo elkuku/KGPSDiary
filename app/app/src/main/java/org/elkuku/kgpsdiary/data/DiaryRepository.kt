@@ -1,13 +1,17 @@
 package org.elkuku.kgpsdiary.data
 
 import android.content.Context
+import android.net.Uri
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.auth.SessionManager
+import org.elkuku.kgpsdiary.uiText
 
 /**
  * The signed-in user's diary, as last loaded from the server. Changes go to the server first and
@@ -106,6 +110,31 @@ class DiaryRepository @Inject constructor(
         }
         return result
     }
+
+    /** Scales the image at [uri] down and adds it to the waypoint with [waypointId]. */
+    suspend fun addPhoto(context: Context, waypointId: Int, uri: Uri): ApiResult<Photo> {
+        val jpeg = try {
+            PhotoScaler.jpeg(context, uri)
+        } catch (e: IOException) {
+            return ApiResult.Failure(uiText(R.string.photo_unreadable, e.message.orEmpty()))
+        }
+        val result = sessionManager.authorized(context) { token -> api.uploadPhoto(token, waypointId, jpeg) }
+        if (result is ApiResult.Success) {
+            updateWaypoint(waypointId) { it.copy(photos = it.photos + result.value) }
+        }
+        return result
+    }
+
+    suspend fun deletePhoto(context: Context, waypointId: Int, photoId: Int): ApiResult<Unit> {
+        val result = sessionManager.authorized(context) { token -> api.deletePhoto(token, photoId) }
+        if (result is ApiResult.Success) {
+            updateWaypoint(waypointId) { waypoint -> waypoint.copy(photos = waypoint.photos.filter { it.id != photoId }) }
+        }
+        return result
+    }
+
+    private fun updateWaypoint(id: Int, change: (Waypoint) -> Waypoint) =
+        _waypoints.update { list -> list.map { if (it.id == id) change(it) else it } }
 
     /** Forgets the diary, e.g. after signing out. */
     fun clear() {

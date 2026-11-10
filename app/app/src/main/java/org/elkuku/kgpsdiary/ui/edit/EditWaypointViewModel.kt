@@ -1,6 +1,7 @@
 package org.elkuku.kgpsdiary.ui.edit
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +21,7 @@ import org.elkuku.kgpsdiary.UiText
 import org.elkuku.kgpsdiary.data.ApiResult
 import org.elkuku.kgpsdiary.data.Category
 import org.elkuku.kgpsdiary.data.DiaryRepository
+import org.elkuku.kgpsdiary.data.Photo
 import org.elkuku.kgpsdiary.data.Tag
 import org.elkuku.kgpsdiary.data.WaypointInput
 import org.elkuku.kgpsdiary.ui.EditWaypointRoute
@@ -46,6 +48,10 @@ data class EditWaypointUiState(
     val form: WaypointForm = WaypointForm(),
     val categories: List<Category> = emptyList(),
     val tags: List<Tag> = emptyList(),
+    /** The waypoint's photos on the server. */
+    val photos: List<Photo> = emptyList(),
+    /** Picked photos, uploaded when the waypoint is saved. */
+    val pendingPhotos: List<Uri> = emptyList(),
     val saving: Boolean = false,
     /** True once saved: the screen closes. */
     val saved: Boolean = false,
@@ -60,11 +66,27 @@ class EditWaypointViewModel @Inject constructor(
     private val route = savedStateHandle.toRoute<EditWaypointRoute>()
     private val local = MutableStateFlow(EditWaypointUiState(id = route.id, form = initialForm(route)))
 
-    val state: StateFlow<EditWaypointUiState> = combine(local, diary.categories, diary.tags) { state, categories, tags ->
-        state.copy(categories = categories, tags = tags)
+    val state: StateFlow<EditWaypointUiState> = combine(local, diary.categories, diary.tags, diary.waypoints) { state, categories, tags, waypoints ->
+        state.copy(categories = categories, tags = tags, photos = waypoints.find { it.id == state.id }?.photos.orEmpty())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), local.value)
 
     fun update(change: (WaypointForm) -> WaypointForm) = local.update { it.copy(form = change(it.form)) }
+
+    fun addPhotos(uris: List<Uri>) = local.update { it.copy(pendingPhotos = (it.pendingPhotos + uris).distinct()) }
+
+    fun removePendingPhoto(uri: Uri) = local.update { it.copy(pendingPhotos = it.pendingPhotos - uri) }
+
+    /** Deletes a photo of the saved waypoint right away. */
+    fun deletePhoto(context: Context, photoId: Int) {
+        val id = local.value.id ?: return
+        viewModelScope.launch {
+            when (val result = diary.deletePhoto(context, id, photoId)) {
+                is ApiResult.Success -> Unit
+                is ApiResult.Unauthorized -> local.update { it.copy(message = result.message ?: uiText(R.string.error_unauthorized)) }
+                is ApiResult.Failure -> local.update { it.copy(message = result.message) }
+            }
+        }
+    }
 
     fun save(context: Context) {
         val state = local.value
@@ -86,13 +108,32 @@ class EditWaypointViewModel @Inject constructor(
         viewModelScope.launch {
             local.update { it.copy(saving = true) }
             when (val result = diary.save(context, state.id, input)) {
-                is ApiResult.Success -> local.update { it.copy(saving = false, saved = true) }
+                is ApiResult.Success -> uploadPending(context, result.value.id)
                 is ApiResult.Unauthorized -> local.update {
                     it.copy(saving = false, message = result.message ?: uiText(R.string.error_unauthorized))
                 }
                 is ApiResult.Failure -> local.update { it.copy(saving = false, message = result.message) }
             }
         }
+    }
+
+    /**
+     * Uploads the picked photos to the saved waypoint, one after another. Photos that fail stay
+     * picked, and the screen stays open on the saved waypoint, to try again.
+     */
+    private suspend fun uploadPending(context: Context, waypointId: Int) {
+        local.update { it.copy(id = waypointId) }
+        var failure: UiText? = null
+
+        for (uri in local.value.pendingPhotos) {
+            when (val result = diary.addPhoto(context, waypointId, uri)) {
+                is ApiResult.Success -> local.update { it.copy(pendingPhotos = it.pendingPhotos - uri) }
+                is ApiResult.Unauthorized -> failure = result.message ?: uiText(R.string.error_unauthorized)
+                is ApiResult.Failure -> failure = result.message
+            }
+        }
+
+        local.update { it.copy(saving = false, saved = failure == null, message = failure) }
     }
 
     fun dismissMessage() = local.update { it.copy(message = null) }

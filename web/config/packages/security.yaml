@@ -52,7 +52,9 @@ security:
     access_control:
         # API operations check their role themselves (#[ApiResource] security), so /api/docs stays public
         # Signed-out visitors go to the login, before a missing waypoint would be a 404
-        - { path: ^/(map|waypoints|categories|tags)(/|$), roles: ROLE_USER }
+        - { path: ^/(map|waypoints|categories|tags|photos)(/|$), roles: ROLE_USER }
+        # The photo routes outside API Platform: 401 without a token, before a missing photo is a 404
+        - { path: ^/api/(photos/\d+/file|waypoints/\d+/photos)$, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

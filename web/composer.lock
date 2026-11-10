@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a6e3ca3a3eea124998ee66ca0e2e2e7",
+    "content-hash": "973079005a541a881d0e73c7d88c0fdd",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -11434,7 +11434,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00"
+            "time": "2026-11-03T12:14:22+00:00",
+            "published-time": "2026-11-03T12:14:36+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",
@@ -14936,6 +14937,7 @@
     "platform": {
         "php": ">=8.5",
         "ext-ctype": "*",
+        "ext-gd": "*",
         "ext-iconv": "*"
     },
     "platform-dev": {},

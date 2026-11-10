@@ -73,3 +73,14 @@ tag:
         created: The tag has been added.
         updated: The tag has been updated.
         deleted: The tag has been deleted.
+photo:
+    title: Photos
+    none: No photos yet.
+    choose: Choose photos
+    upload: Upload
+    delete: Delete photo
+    delete_confirm: Delete this photo?
+    alt: '{title}, photo {number}'
+    flash:
+        added: The photos have been added.
+        deleted: The photo has been deleted.

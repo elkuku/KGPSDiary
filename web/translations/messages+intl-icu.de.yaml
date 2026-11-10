@@ -73,3 +73,14 @@ tag:
         created: Der Tag wurde hinzugefügt.
         updated: Der Tag wurde aktualisiert.
         deleted: Der Tag wurde gelöscht.
+photo:
+    title: Fotos
+    none: Noch keine Fotos.
+    choose: Fotos auswählen
+    upload: Hochladen
+    delete: Foto löschen
+    delete_confirm: Dieses Foto löschen?
+    alt: '{title}, Foto {number}'
+    flash:
+        added: Die Fotos wurden hinzugefügt.
+        deleted: Das Foto wurde gelöscht.

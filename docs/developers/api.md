@@ -32,6 +32,9 @@ In dev, with `APP_FAKE_GOOGLE_TOKENS=1` in `web/.env.local`, fake tokens of the 
 | `GET`, `PATCH`, `DELETE` | `/api/categories/{id}` | Read, change or delete one. Deleting removes it from its waypoints. |
 | `GET`, `POST` | `/api/tags` | The user's tags, sorted by name; create one. |
 | `GET`, `PATCH`, `DELETE` | `/api/tags/{id}` | Read, change or delete one. Deleting removes it from its waypoints. |
+| `POST` | `/api/waypoints/{id}/photos` | Add a photo: the image in the multipart field `file` (JPEG, PNG, WebP or AVIF, up to 20 MB). `201` with the photo, `422` with a `detail` for anything else. |
+| `GET`, `DELETE` | `/api/photos/{id}` | A photo's data; delete it with its files. |
+| `GET` | `/api/photos/{id}/file` | The photo as JPEG, at most 2048 pixels; `?size=thumb` for the 400 pixel thumbnail. Needs the bearer token too. |
 
 Users only ever see their own records, admins included: another user's waypoint, category or tag is
 `404`, and its IRI in a request body is `400`.
@@ -60,7 +63,16 @@ Users only ever see their own records, admins included: another user's waypoint,
 | `tags` | IRIs of the user's tags. |
 | `createdAt`, `updatedAt` | Read only, set by the server. |
 
-Answers embed the category (`id`, `name`, `color`, `icon`) and the tags (`id`, `name`).
+Answers embed the category (`id`, `name`, `color`, `icon`), the tags (`id`, `name`) and the photos
+(`id`, `width`, `height`, `url`, `thumbnailUrl`, `createdAt`; the URLs are relative to the server).
+
+## Photos
+
+Uploads are turned upright (EXIF orientation), scaled to at most 2048 pixels plus a 400 pixel
+thumbnail, and saved as JPEG without the original's metadata, so no GPS position or camera data is
+kept. The files are in `var/photos` (`app.photo_dir`), outside the web root, and only their owner
+gets them. A waypoint has at most 50 photos. Adding or deleting a photo changes the waypoint's
+`updatedAt`. Deleting a waypoint deletes its photos and their files.
 
 ### Filters
 

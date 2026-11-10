@@ -24,6 +24,40 @@
         <div class="mb-4" style="white-space: pre-line">{{ waypoint.description }}</div>
     {% endif %}
 
+    <h3 class="h5 mt-4">{{ 'photo.title'|trans }}</h3>
+    {% if waypoint.photos is not empty %}
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-2 mb-3">
+            {% for photo in waypoint.photos %}
+                <div class="col">
+                    <div class="position-relative">
+                        <a href="{{ path('app_photo_file', {id: photo.id}) }}" target="_blank" rel="noopener">
+                            <img class="img-fluid rounded w-100 object-fit-cover" style="aspect-ratio: 1"
+                                 src="{{ path('app_photo_thumb', {id: photo.id}) }}" loading="lazy"
+                                 alt="{{ 'photo.alt'|trans({title: waypoint.title, number: loop.index}) }}">
+                        </a>
+                        <form class="position-absolute top-0 end-0 m-1" method="post" action="{{ path('app_photo_delete', {id: photo.id}) }}"
+                              onsubmit="return confirm({{ 'photo.delete_confirm'|trans|json_encode|e('html_attr') }});">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-photo-' ~ photo.id) }}">
+                            <button class="btn btn-sm btn-light opacity-75" title="{{ 'photo.delete'|trans }}">
+                                <twig:ux:icon name="bi:trash" />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-body-secondary fst-italic">{{ 'photo.none'|trans }}</p>
+    {% endif %}
+
+    <form class="d-flex flex-wrap gap-2 align-items-center mb-4" method="post" enctype="multipart/form-data"
+          action="{{ path('app_photo_upload', {id: waypoint.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('upload-photos-' ~ waypoint.id) }}">
+        <input class="form-control w-auto" type="file" name="photos[]" multiple required
+               accept="image/jpeg,image/png,image/webp,image/avif" aria-label="{{ 'photo.choose'|trans }}">
+        <button class="btn btn-outline-primary">{{ 'photo.upload'|trans }}</button>
+    </form>
+
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-primary" href="{{ path('app_waypoint_edit', {id: waypoint.id}) }}">{{ 'waypoint.edit'|trans }}</a>
         <a class="btn btn-outline-secondary" href="{{ path('app_waypoint_map', {latitude: waypoint.latitude, longitude: waypoint.longitude}) }}">{{ 'waypoint.show_on_map'|trans }}</a>

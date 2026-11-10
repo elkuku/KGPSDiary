@@ -10,10 +10,13 @@ use App\Entity\User;
 use App\Entity\Waypoint;
 use App\Repository\UserRepository;
 use App\Repository\WaypointRepository;
+use App\Tests\Photo\TestImages;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
+use Symfony\Component\DomCrawler\Field\FileFormField;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * The web map and the waypoint pages.
@@ -29,9 +32,13 @@ class WaypointControllerTest extends WebTestCase
 
     protected function tearDown(): void
     {
-        foreach (['Waypoint', 'Category', 'Tag'] as $entity) {
+        foreach (['Photo', 'Waypoint', 'Category', 'Tag'] as $entity) {
             $this->entityManager()->createQuery(\sprintf('DELETE FROM App\Entity\%s', $entity))->execute();
         }
+
+        $photoDirectory = static::getContainer()->getParameter('app.photo_dir');
+        self::assertIsString($photoDirectory);
+        new Filesystem()->remove($photoDirectory);
 
         parent::tearDown();
     }
@@ -193,6 +200,42 @@ class WaypointControllerTest extends WebTestCase
             $this->client->request($method, \sprintf($path, $theirs->getId()));
             self::assertResponseStatusCodeSame(404, $request);
         }
+    }
+
+    public function testUploadsShowsAndDeletesPhotos(): void
+    {
+        $waypoint = $this->waypoint('user', 'Mitad del Mundo');
+
+        $this->client->loginUser($this->user('user'));
+        $crawler = $this->client->request('GET', '/waypoints/'.$waypoint->getId());
+        self::assertSelectorTextContains('main', 'No photos yet.');
+
+        $form = $crawler->selectButton('Upload')->form();
+        $file = $form['photos[0]'];
+        self::assertInstanceOf(FileFormField::class, $file);
+        $file->upload(TestImages::jpeg(1200, 900));
+        $this->client->submit($form);
+
+        self::assertResponseRedirects('/waypoints/'.$waypoint->getId());
+        $crawler = $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'The photos have been added.');
+        $thumbnail = (string) $crawler->filter('main img')->attr('src');
+        self::assertMatchesRegularExpression('#^/photos/\d+/thumb$#', $thumbnail);
+
+        $this->client->request('GET', $thumbnail);
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'image/jpeg');
+
+        // Not for other users
+        $this->client->loginUser($this->user('admin'));
+        $this->client->request('GET', $thumbnail);
+        self::assertResponseStatusCodeSame(404);
+
+        $this->client->loginUser($this->user('user'));
+        $crawler = $this->client->request('GET', '/waypoints/'.$waypoint->getId());
+        $this->client->submit($crawler->filter('form[action$="/delete"]')->first()->form());
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('main', 'No photos yet.');
     }
 
     public function testThePagesAreTranslated(): void

@@ -33,6 +33,7 @@ class KgpsApiTest {
             lastUrl = request.url.toString()
             requestedUrls += request.url.toString()
             lastBody = (request.body as? TextContent)?.text
+                ?: (request.body as? io.ktor.http.content.OutgoingContent.WriteChannelContent)?.let { "multipart" }
             lastContentType = request.body.contentType?.toString()
             respond()
         }
@@ -200,5 +201,51 @@ class KgpsApiTest {
         assertEquals(ApiResult.Success(Tag(7, "Lunch")), api.saveTag("token", null, TagInput("Lunch")))
         assertEquals(ApiResult.Success(Unit), api.deleteTag("token", 7))
         assertEquals("https://diary.test/api/tags/7", lastUrl)
+    }
+
+    @Test
+    fun uploadsAPhotoAsMultipart() = runTest {
+        val api = api {
+            respond(
+                """{"id":9,"width":2048,"height":1536,"url":"/api/photos/9/file","thumbnailUrl":"/api/photos/9/file?size=thumb","createdAt":"2026-11-10T12:00:00+00:00"}""",
+                HttpStatusCode.Created,
+                headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val result = api.uploadPhoto("token", 5, byteArrayOf(1, 2, 3))
+
+        assertEquals("https://diary.test/api/waypoints/5/photos", lastUrl)
+        assertEquals("Bearer token", lastAuthorization)
+        assertTrue(lastContentType.orEmpty().startsWith("multipart/form-data"))
+        assertEquals(Photo(9, 2048, 1536, "/api/photos/9/file", "/api/photos/9/file?size=thumb", "2026-11-10T12:00:00+00:00"), (result as ApiResult.Success).value)
+    }
+
+    @Test
+    fun waypointsCarryTheirPhotos() = runTest {
+        val api = api {
+            respond(
+                """{"member":[{"id":1,"title":"A","latitude":0.0,"longitude":0.0,"photos":[{"id":9,"width":10,"height":20,"url":"/api/photos/9/file","thumbnailUrl":"/api/photos/9/file?size=thumb"}]}]}""",
+                HttpStatusCode.OK,
+                headersOf(HttpHeaders.ContentType, "application/ld+json"),
+            )
+        }
+
+        val waypoint = (api.waypoints("token") as ApiResult.Success).value.single()
+
+        assertEquals(listOf(9), waypoint.photos.map { it.id })
+    }
+
+    @Test
+    fun rejectedPhotosShowTheServersReason() = runTest {
+        val api = api {
+            respond(
+                """{"type":"/errors/422","status":422,"detail":"Upload a JPEG, PNG, WebP or AVIF image."}""",
+                HttpStatusCode.UnprocessableEntity,
+                headersOf(HttpHeaders.ContentType, "application/problem+json"),
+            )
+        }
+
+        assertEquals(ApiResult.Failure(UiText.Plain("Upload a JPEG, PNG, WebP or AVIF image.")), api.uploadPhoto("token", 5, byteArrayOf(1)))
     }
 }

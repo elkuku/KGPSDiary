@@ -73,3 +73,14 @@ tag:
         created: La etiqueta se ha añadido.
         updated: La etiqueta se ha actualizado.
         deleted: La etiqueta se ha eliminado.
+photo:
+    title: Fotos
+    none: Todavía no hay fotos.
+    choose: Elegir fotos
+    upload: Subir
+    delete: Eliminar foto
+    delete_confirm: ¿Eliminar esta foto?
+    alt: '{title}, foto {number}'
+    flash:
+        added: Las fotos se han añadido.
+        deleted: La foto se ha eliminado.

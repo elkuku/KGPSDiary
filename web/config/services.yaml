@@ -7,6 +7,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # The photo files, outside the web root
+    app.photo_dir: '%kernel.project_dir%/var/photos'
 
 services:
     # default configuration for services in *this* file
@@ -23,6 +25,9 @@ services:
     # please note that last definitions always *replace* previous ones
 
 when@test:
+    parameters:
+        app.photo_dir: '%kernel.project_dir%/var/test-photos'
+
     services:
         # Tokens built with FakeGoogleIdTokenVerifier::token() instead of Google's
         App\Security\GoogleIdTokenVerifierInterface:

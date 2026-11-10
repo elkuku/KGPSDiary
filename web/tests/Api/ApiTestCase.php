@@ -8,6 +8,7 @@ use App\Security\FakeGoogleIdTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * API requests as the fixture users "user" and "admin", signed in with fake Google ID tokens.
@@ -23,9 +24,14 @@ abstract class ApiTestCase extends WebTestCase
 
     protected function tearDown(): void
     {
-        foreach (['Waypoint', 'Category', 'Tag'] as $entity) {
+        foreach (['Photo', 'Waypoint', 'Category', 'Tag'] as $entity) {
             $this->entityManager()->createQuery(\sprintf('DELETE FROM App\Entity\%s', $entity))->execute();
         }
+
+        // DQL deletes leave the photo files
+        $photoDirectory = static::getContainer()->getParameter('app.photo_dir');
+        self::assertIsString($photoDirectory);
+        new Filesystem()->remove($photoDirectory);
 
         $this->entityManager()->createQuery('UPDATE App\Entity\User u SET u.googleId = NULL')->execute();
 

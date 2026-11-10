@@ -21,7 +21,8 @@ Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 | Diary | `data/DiaryRepository.kt` | The user's waypoints, categories and tags as last loaded; saving and deleting go to the server first. |
 | Map | `ui/map/` | Mapbox Maps SDK (Compose extension): clustered markers in category colors, a long press adds a waypoint there, the + button one at the map's center, a tap shows a detail sheet. |
 | Categories and tags | `ui/manage/` | Adding, renaming, recoloring (12 marker colors) and deleting categories and tags, with their waypoint counts. The map filters by one category and one tag (chips above the map). |
-| Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category and tags. |
+| Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category, tags and photos (Android photo picker; picked photos are uploaded once the waypoint is saved). |
+| Photos | `ui/photo/`, `data/PhotoScaler.kt`, `KGPSDiaryApplication.kt` | Thumbnails and a full screen viewer with Coil, whose image loader adds the bearer token for the server; photos are scaled to 2048 pixels on the phone before the upload. |
 | UI | `ui/` | `MainViewModel` (session), `AppNavHost` (type-safe Navigation Compose), the sign-in and profile screens. |
 
 Configuration comes from `app/local.properties` (see `local.properties.example`) and is compiled
@@ -47,6 +48,7 @@ build), and API Platform for the [API](api.md).
 |---|---|---|
 | Entities | `src/Entity/` | `User`, and the diary: `Waypoint`, `Category`, `Tag`, each owned by one user. |
 | Owner scoping | `src/Doctrine/`, `src/State/`, `src/Security/Voter/`, `src/Validator/` | Users only see and change their own records, admins too. |
+| Photos | `src/Photo/`, `src/Controller/Api/`, `src/Controller/Photo/` | `PhotoStorage` (GD: upright, scaled, JPEG without metadata, in `var/photos`), `PhotoUploader`, files for the API and the web, deleting files with their photos. |
 | Security | `src/Security/` | `GoogleIdentityAuthenticator` (web button, with Google's CSRF cookie), `GoogleApiTokenAuthenticator` (API bearer token), both through `GoogleIdTokenVerifier` and `GoogleUserResolver`. |
 | API | `src/ApiResource/`, `src/State/` | The resources under `/api`. |
 | Pages | `src/Controller/` | One class per action: login, profile, the user admin, and the diary in `Waypoint/`: the map, its GeoJSON, and creating, showing, editing and deleting waypoints. |

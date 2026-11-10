@@ -7,12 +7,16 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.delete
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -97,6 +101,25 @@ class KgpsApi @Inject constructor(
     }
 
     suspend fun deleteTag(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/tags/$id")
+
+    /** Adds a photo ([jpeg], at most 20 MB) to the waypoint with [waypointId]. */
+    suspend fun uploadPhoto(idToken: String, waypointId: Int, jpeg: ByteArray): ApiResult<Photo> = request {
+        client.submitFormWithBinaryData(
+            url = "$root/api/waypoints/$waypointId/photos",
+            formData = formData {
+                append(
+                    "file",
+                    jpeg,
+                    Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "filename=\"photo.jpg\"")
+                    },
+                )
+            },
+        ) { auth(idToken) }
+    }
+
+    suspend fun deletePhoto(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/photos/$id")
 
     private suspend fun delete(idToken: String, path: String): ApiResult<Unit> =
         when (val result = send { client.delete("$root$path") { auth(idToken) } }) {

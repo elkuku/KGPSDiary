@@ -19,6 +19,17 @@ data class Tag(val id: Int, val name: String) {
     val iri: String get() = "/api/tags/$id"
 }
 
+/** A photo of a waypoint; [url] and [thumbnailUrl] are relative to the server and need the token. */
+@Serializable
+data class Photo(
+    val id: Int,
+    val width: Int = 0,
+    val height: Int = 0,
+    val url: String,
+    val thumbnailUrl: String,
+    val createdAt: String = "",
+)
+
 /** A waypoint of `GET /api/waypoints`; [visitedAt] is `yyyy-MM-dd`. */
 @Serializable
 data class Waypoint(
@@ -30,6 +41,7 @@ data class Waypoint(
     val visitedAt: String? = null,
     val category: Category? = null,
     val tags: List<Tag> = emptyList(),
+    val photos: List<Photo> = emptyList(),
     val createdAt: String = "",
     val updatedAt: String = "",
 ) {
