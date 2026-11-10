@@ -114,4 +114,26 @@
         <item quantity="many">%1$s km · %2$d puntos</item>
         <item quantity="other">%1$s km · %2$d puntos</item>
     </plurals>
+    <string name="waypoint_share">Compartir posición</string>
+    <string name="waypoint_open_in_map_app">Abrir en una app de mapas</string>
+    <string name="waypoint_no_map_app">No hay ninguna app de mapas instalada.</string>
+
+    <string name="tracks_title">Recorridos</string>
+    <string name="tracks_none">Todavía no hay recorridos. Graba uno con el botón rojo del mapa.</string>
+    <string name="track_rename">Renombrar recorrido</string>
+    <string name="track_renamed">El recorrido se ha renombrado.</string>
+    <string name="track_export">Exportar como GPX</string>
+    <string name="track_deleted">El recorrido se ha eliminado.</string>
+    <string name="track_delete_text">¿Eliminar el recorrido «%1$s»? También se eliminará en la web.</string>
+    <string name="track_duration_minutes">%1$d min</string>
+    <string name="track_duration_hours">%1$d h %2$d min</string>
+    <string name="waypoint_show_on_map">Mostrar en el mapa</string>
+
+    <plurals name="track_points">
+        <item quantity="one">%d punto</item>
+        <item quantity="many">%d puntos</item>
+        <item quantity="other">%d puntos</item>
+    </plurals>
+    <string name="track_hide">Ocultar en el mapa</string>
+    <string name="track_show">Volver a mostrar en el mapa</string>
 </resources>

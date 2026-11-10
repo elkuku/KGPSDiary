@@ -24,6 +24,7 @@ import org.elkuku.kgpsdiary.data.Waypoint
 import org.elkuku.kgpsdiary.data.filterWaypoints
 import org.elkuku.kgpsdiary.track.RecordedPoint
 import org.elkuku.kgpsdiary.track.TrackRecorder
+import org.elkuku.kgpsdiary.track.TrackVisibility
 import org.elkuku.kgpsdiary.uiText
 
 data class MapUiState(
@@ -60,6 +61,7 @@ data class MapUiState(
 class MapViewModel @Inject constructor(
     private val diary: DiaryRepository,
     private val recorder: TrackRecorder,
+    private val visibility: TrackVisibility,
 ) : ViewModel() {
     private val local = MutableStateFlow(MapUiState())
 
@@ -83,8 +85,15 @@ class MapViewModel @Inject constructor(
         )
     }
 
-    val state: StateFlow<MapUiState> = combine(diaryState, diary.tracks, recorder.recording, recorder.points) { state, tracks, recording, points ->
-        state.copy(tracks = tracks, recording = recording, recordedPoints = points)
+    val state: StateFlow<MapUiState> = combine(
+        diaryState,
+        diary.tracks,
+        visibility.hidden,
+        recorder.recording,
+        recorder.points,
+    ) { state, tracks, hidden, recording, points ->
+        // Hidden tracks stay off the map
+        state.copy(tracks = TrackVisibility.visible(tracks, hidden), recording = recording, recordedPoints = points)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MapUiState())
 
     /** Starts recording; the location permission must be granted. */
@@ -147,6 +156,9 @@ class MapViewModel @Inject constructor(
     fun filterCategory(categoryId: Int) = local.update { it.copy(categoryId = categoryId.takeIf { id -> id != it.categoryId }) }
 
     fun filterTag(tagId: Int) = local.update { it.copy(tagId = tagId.takeIf { id -> id != it.tagId }) }
+
+    /** Shown on the map, even if it was hidden. */
+    fun showTrack(id: Int) = visibility.setVisible(id, true)
 
     fun clearFilters() = local.update { it.copy(categoryId = null, tagId = null) }
 

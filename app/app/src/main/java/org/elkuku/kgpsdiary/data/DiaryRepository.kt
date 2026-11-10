@@ -149,6 +149,13 @@ class DiaryRepository @Inject constructor(
             _tracks.update { list -> listOf(saved) + list }
         }
 
+    fun track(id: Int): Track? = _tracks.value.find { it.id == id }
+
+    suspend fun renameTrack(context: Context, id: Int, name: String): ApiResult<Track> =
+        sessionManager.authorized(context) { token -> api.renameTrack(token, id, name.trim()) }.onSuccess { renamed ->
+            _tracks.update { list -> list.map { if (it.id == renamed.id) renamed else it } }
+        }
+
     suspend fun deleteTrack(context: Context, id: Int): ApiResult<Unit> =
         sessionManager.authorized(context) { token -> api.deleteTrack(token, id) }.onSuccess {
             _tracks.update { list -> list.filter { it.id != id } }

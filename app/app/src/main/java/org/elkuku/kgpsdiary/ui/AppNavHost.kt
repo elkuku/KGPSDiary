@@ -12,6 +12,7 @@ import org.elkuku.kgpsdiary.ui.edit.EditWaypointScreen
 import org.elkuku.kgpsdiary.ui.list.WaypointListScreen
 import org.elkuku.kgpsdiary.ui.manage.ManageScreen
 import org.elkuku.kgpsdiary.ui.map.MapScreen
+import org.elkuku.kgpsdiary.ui.tracks.TrackListScreen
 
 @Serializable
 object MapRoute
@@ -29,8 +30,14 @@ object ManageRoute
 @Serializable
 object ListRoute
 
+@Serializable
+object TracksRoute
+
 /** The saved-state key the list hands the map: the waypoint to show. */
 private const val FOCUS = "focus"
+
+/** The saved-state key the track list hands the map: the track to show. */
+private const val FOCUS_TRACK = "focusTrack"
 
 /** The screens of a signed-in user. */
 @Composable
@@ -45,9 +52,15 @@ fun AppNavHost(
     NavHost(navController = navController, startDestination = MapRoute, modifier = modifier) {
         composable<MapRoute> { entry ->
             val focus by entry.savedStateHandle.getStateFlow<Int?>(FOCUS, null).collectAsStateWithLifecycle()
+            val focusTrack by entry.savedStateHandle.getStateFlow<Int?>(FOCUS_TRACK, null).collectAsStateWithLifecycle()
             MapScreen(
                 focusId = focus,
-                onFocused = { entry.savedStateHandle[FOCUS] = null },
+                focusTrackId = focusTrack,
+                onFocused = {
+                    entry.savedStateHandle[FOCUS] = null
+                    entry.savedStateHandle[FOCUS_TRACK] = null
+                },
+                onTracks = { navController.navigate(TracksRoute) },
                 onList = { navController.navigate(ListRoute) },
                 onAdd = { latitude, longitude -> navController.navigate(EditWaypointRoute(latitude = latitude, longitude = longitude)) },
                 onEdit = { id -> navController.navigate(EditWaypointRoute(id = id)) },
@@ -59,6 +72,15 @@ fun AppNavHost(
             WaypointListScreen(
                 onOpen = { id ->
                     navController.previousBackStackEntry?.savedStateHandle?.set(FOCUS, id)
+                    navController.popBackStack()
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<TracksRoute> {
+            TrackListScreen(
+                onShowOnMap = { id ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set(FOCUS_TRACK, id)
                     navController.popBackStack()
                 },
                 onBack = { navController.popBackStack() },

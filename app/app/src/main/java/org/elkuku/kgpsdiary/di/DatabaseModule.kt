@@ -14,6 +14,8 @@ import org.elkuku.kgpsdiary.auth.SharedPreferencesAccountStore
 import org.elkuku.kgpsdiary.data.cache.DiaryCache
 import org.elkuku.kgpsdiary.data.cache.DiaryDatabase
 import org.elkuku.kgpsdiary.data.cache.RoomDiaryCache
+import org.elkuku.kgpsdiary.track.HiddenTrackStore
+import org.elkuku.kgpsdiary.track.SharedPreferencesHiddenTrackStore
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,6 +25,9 @@ abstract class DatabaseModule {
 
     @Binds
     abstract fun accountStore(store: SharedPreferencesAccountStore): AccountStore
+
+    @Binds
+    abstract fun hiddenTrackStore(store: SharedPreferencesHiddenTrackStore): HiddenTrackStore
 
     companion object {
         @Provides

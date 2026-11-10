@@ -77,6 +77,10 @@ data class Track(
     val pointCount: Int = 0,
 )
 
+/** The body of `PATCH /api/tracks/{id}`: only the name changes. */
+@Serializable
+data class TrackRename(val name: String)
+
 /** The body of `POST /api/tracks`: each point as [latitude, longitude, time], the time a whole number. */
 @Serializable
 data class TrackInput(val name: String, val points: List<kotlinx.serialization.json.JsonArray>)

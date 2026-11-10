@@ -110,4 +110,25 @@
         <item quantity="one">%1$s km · %2$d Punkt</item>
         <item quantity="other">%1$s km · %2$d Punkte</item>
     </plurals>
+    <string name="waypoint_share">Position teilen</string>
+    <string name="waypoint_open_in_map_app">In einer Karten-App öffnen</string>
+    <string name="waypoint_no_map_app">Es ist keine Karten-App installiert.</string>
+
+    <string name="tracks_title">Tracks</string>
+    <string name="tracks_none">Noch keine Tracks. Zeichne einen mit dem roten Knopf auf der Karte auf.</string>
+    <string name="track_rename">Track umbenennen</string>
+    <string name="track_renamed">Der Track wurde umbenannt.</string>
+    <string name="track_export">Als GPX exportieren</string>
+    <string name="track_deleted">Der Track wurde gelöscht.</string>
+    <string name="track_delete_text">Den Track „%1$s“ löschen? Er wird auch im Web gelöscht.</string>
+    <string name="track_duration_minutes">%1$d Min.</string>
+    <string name="track_duration_hours">%1$d Std. %2$d Min.</string>
+    <string name="waypoint_show_on_map">Auf der Karte zeigen</string>
+
+    <plurals name="track_points">
+        <item quantity="one">%d Punkt</item>
+        <item quantity="other">%d Punkte</item>
+    </plurals>
+    <string name="track_hide">Auf der Karte ausblenden</string>
+    <string name="track_show">Auf der Karte wieder einblenden</string>
 </resources>

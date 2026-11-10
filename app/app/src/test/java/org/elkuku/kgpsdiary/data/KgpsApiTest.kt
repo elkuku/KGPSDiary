@@ -248,4 +248,18 @@ class KgpsApiTest {
 
         assertEquals(ApiResult.Failure(UiText.Plain("Upload a JPEG, PNG, WebP or AVIF image.")), api.uploadPhoto("token", 5, byteArrayOf(1)))
     }
+
+    @Test
+    fun renamesATrackWithAMergePatch() = runTest {
+        val api = api {
+            respond("""{"id":4,"name":"Morning walk","distance":1200.5,"pointCount":3}""", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/ld+json"))
+        }
+
+        val result = api.renameTrack("token", 4, "Morning walk")
+
+        assertEquals("Morning walk", (result as ApiResult.Success).value.name)
+        assertEquals("https://diary.test/api/tracks/4", lastUrl)
+        assertTrue(lastContentType.orEmpty().startsWith("application/merge-patch+json"))
+        assertEquals("""{"name":"Morning walk"}""", lastBody)
+    }
 }

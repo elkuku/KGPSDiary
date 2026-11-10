@@ -1,8 +1,12 @@
 package org.elkuku.kgpsdiary.ui.map
 
 import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
+import androidx.core.net.toUri
 import com.mapbox.maps.extension.compose.style.standard.rememberStandardStyleState
 import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
 import com.mapbox.maps.extension.compose.style.standard.LightPresetValue
@@ -30,13 +34,16 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SmallFloatingActionButton
@@ -86,8 +93,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import org.elkuku.kgpsdiary.R
+import org.elkuku.kgpsdiary.track.GpxShare
+import org.elkuku.kgpsdiary.ui.tracks.TrackListViewModel
+import org.elkuku.kgpsdiary.ui.tracks.TrackSheet
 import org.elkuku.kgpsdiary.asString
 import org.elkuku.kgpsdiary.data.Category
+import org.elkuku.kgpsdiary.data.GeoLink
 import org.elkuku.kgpsdiary.ui.photo.serverUrl
 import org.elkuku.kgpsdiary.ui.photo.PhotoViewer
 import org.elkuku.kgpsdiary.ui.photo.PhotoRow
@@ -104,6 +115,9 @@ import org.elkuku.kgpsdiary.data.Waypoint
 fun MapScreen(
     /** A waypoint to fly to and show, e.g. chosen in the list; [onFocused] once shown. */
     focusId: Int?,
+    /** A track to show whole, chosen in the track list. */
+    focusTrackId: Int?,
+    onTracks: () -> Unit,
     onFocused: () -> Unit,
     onList: () -> Unit,
     onAdd: (latitude: Double, longitude: Double) -> Unit,
@@ -111,11 +125,15 @@ fun MapScreen(
     onProfile: () -> Unit,
     onManage: () -> Unit,
     viewModel: MapViewModel = hiltViewModel(),
+    // A tap on a track shows the same actions as in the track list
+    trackActions: TrackListViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val trackState by trackActions.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val message = state.message?.asString()
+    val trackMessage = trackState.message?.asString()
     val viewportState = rememberMapViewportState {
         setCameraOptions { center(Point.fromLngLat(0.0, 20.0)).zoom(1.5) }
     }
@@ -136,15 +154,25 @@ fun MapScreen(
     }
 
     LaunchedEffect(Unit) { viewModel.load(context) }
-    // Where the map shows a waypoint chosen in the list; applied once the map view exists
-    var focusPoint by remember { mutableStateOf<Point?>(null) }
+    // Where the map shows a waypoint or track chosen in a list; applied once the map view exists
+    var focusPoints by remember { mutableStateOf<List<Point>?>(null) }
     LaunchedEffect(focusId, state.waypoints) {
         val waypoint = state.waypoints.find { it.id == focusId } ?: return@LaunchedEffect
         // Shown on the map: the filters let it through
         viewModel.clearFilters()
         viewModel.select(waypoint.id)
         fitted = true
-        focusPoint = Point.fromLngLat(waypoint.longitude, waypoint.latitude)
+        focusPoints = listOf(Point.fromLngLat(waypoint.longitude, waypoint.latitude))
+        onFocused()
+    }
+    LaunchedEffect(focusTrackId) {
+        // A hidden track asked for is shown again
+        focusTrackId?.let(viewModel::showTrack)
+    }
+    LaunchedEffect(focusTrackId, state.tracks) {
+        val track = state.tracks.find { it.id == focusTrackId } ?: return@LaunchedEffect
+        fitted = true
+        focusPoints = track.points.filter { it.size >= 2 }.map { Point.fromLngLat(it[1], it[0]) }
         onFocused()
     }
     LaunchedEffect(message) {
@@ -153,11 +181,17 @@ fun MapScreen(
             viewModel.dismissMessage()
         }
     }
+    LaunchedEffect(trackMessage) {
+        if (trackMessage != null) {
+            snackbarHostState.showSnackbar(trackMessage)
+            trackActions.dismissMessage()
+        }
+    }
     // Once, after the first load: show all waypoints
     LaunchedEffect(state.loaded) {
         if (state.loaded && !fitted && state.waypoints.isNotEmpty()) {
             fitted = true
-            viewportState.fitWaypoints(state.waypoints)
+            focusPoints = state.waypoints.map { Point.fromLngLat(it.longitude, it.latitude) }
         }
     }
 
@@ -166,6 +200,9 @@ fun MapScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
+                    IconButton(onClick = onTracks) {
+                        Icon(painterResource(R.drawable.ic_timeline), stringResource(R.string.tracks_title))
+                    }
                     IconButton(onClick = onList) {
                         Icon(painterResource(R.drawable.ic_list), stringResource(R.string.list_title))
                     }
@@ -233,11 +270,19 @@ fun MapScreen(
                     true
                 },
             ) {
-                MapEffect(focusPoint) { mapView ->
-                    focusPoint?.let { point ->
-                        mapView.mapboxMap.setCamera(CameraOptions.Builder().center(point).zoom(15.0).build())
-                        focusPoint = null
-                    }
+                MapEffect(focusPoints) { mapView ->
+                    val points = focusPoints?.takeIf { it.isNotEmpty() } ?: return@MapEffect
+                    focusPoints = null
+                    // Mapbox fits the points into the map's real size, once it knows it; clear of the
+                    // filter chips at the top and the buttons on the right
+                    val dp = mapView.resources.displayMetrics.density.toDouble()
+                    mapView.mapboxMap.cameraForCoordinates(
+                        points,
+                        CameraOptions.Builder().build(),
+                        EdgeInsets(120 * dp, 48 * dp, 64 * dp, 88 * dp),
+                        FOCUS_MAX_ZOOM,
+                        null,
+                    ) { camera -> mapView.mapboxMap.setCamera(camera) }
                 }
                 MapEffect(locationGranted) { mapView ->
                     mapView.location.updateSettings {
@@ -245,7 +290,7 @@ fun MapScreen(
                         locationPuck = createDefault2DPuck(withBearing = true)
                     }
                 }
-                TrackLines(state.tracks, state.recordedPoints, night = dark)
+                TrackLines(state.tracks, state.recordedPoints, night = dark, onClick = trackActions::select)
                 WaypointMarkers(state.visibleWaypoints, viewportState, onClick = viewModel::select)
             }
 
@@ -287,6 +332,22 @@ fun MapScreen(
             saving = state.savingTrack,
             onSave = { name -> viewModel.saveTrack(context, name) },
             onDiscard = viewModel::discardRecording,
+        )
+    }
+
+    val exportTitle = stringResource(R.string.track_export)
+    trackState.selected?.let { track ->
+        TrackSheet(
+            track = track,
+            busy = trackState.busy,
+            onDismiss = { trackActions.select(null) },
+            onHide = {
+                trackActions.select(null)
+                trackActions.toggleVisible(track.id)
+            },
+            onRename = { name -> trackActions.rename(context, track.id, name) },
+            onExport = { context.startActivity(GpxShare.intent(context, track, exportTitle)) },
+            onDelete = { trackActions.delete(context, track.id) },
         )
     }
 
@@ -412,6 +473,7 @@ private fun WaypointMarkers(waypoints: List<Waypoint>, viewportState: MapViewpor
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun WaypointSheet(waypoint: Waypoint, onDismiss: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit) {
+    val context = LocalContext.current
     var confirmDelete by remember { mutableStateOf(false) }
     var viewing by remember { mutableStateOf<Photo?>(null) }
 
@@ -450,14 +512,43 @@ private fun WaypointSheet(waypoint: Waypoint, onDismiss: () -> Unit, onEdit: () 
                 )
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                Button(onClick = onEdit) {
-                    Icon(painterResource(R.drawable.ic_edit), contentDescription = null)
-                    Text(stringResource(R.string.edit), Modifier.padding(start = 8.dp))
+            // Round icon buttons, edit filled as the main action; the labels are their descriptions
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 8.dp),
+            ) {
+                FilledIconButton(onClick = onEdit) {
+                    Icon(painterResource(R.drawable.ic_edit), contentDescription = stringResource(R.string.edit))
                 }
-                OutlinedButton(onClick = { confirmDelete = true }) {
-                    Icon(painterResource(R.drawable.ic_delete), contentDescription = null)
-                    Text(stringResource(R.string.delete), Modifier.padding(start = 8.dp))
+                // Only the coordinates: the title and description stay private
+                val shareTitle = stringResource(R.string.waypoint_share)
+                OutlinedIconButton(onClick = {
+                    val send = Intent(Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(Intent.EXTRA_TEXT, GeoLink.shareText(waypoint.latitude, waypoint.longitude))
+                    context.startActivity(Intent.createChooser(send, shareTitle))
+                }) {
+                    Icon(painterResource(R.drawable.ic_share), contentDescription = shareTitle)
+                }
+                // Only apps that can show a position: the geo: link opened, with the app picker each time
+                val mapAppTitle = stringResource(R.string.waypoint_open_in_map_app)
+                val noMapApp = stringResource(R.string.waypoint_no_map_app)
+                OutlinedIconButton(onClick = {
+                    val view = Intent(Intent.ACTION_VIEW, GeoLink.uri(waypoint.latitude, waypoint.longitude).toUri())
+                    try {
+                        context.startActivity(Intent.createChooser(view, mapAppTitle))
+                    } catch (_: ActivityNotFoundException) {
+                        Toast.makeText(context, noMapApp, Toast.LENGTH_LONG).show()
+                    }
+                }) {
+                    Icon(painterResource(R.drawable.ic_map), contentDescription = mapAppTitle)
+                }
+                OutlinedIconButton(
+                    onClick = { confirmDelete = true },
+                    colors = IconButtonDefaults.outlinedIconButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    Icon(painterResource(R.drawable.ic_delete), contentDescription = stringResource(R.string.delete))
                 }
             }
         }
@@ -479,23 +570,8 @@ private fun WaypointSheet(waypoint: Waypoint, onDismiss: () -> Unit, onEdit: () 
     }
 }
 
-/** All [waypoints] in view; a single one at street level. */
-private fun MapViewportState.fitWaypoints(waypoints: List<Waypoint>) {
-    if (waypoints.size == 1) {
-        val only = waypoints.single()
-        flyTo(CameraOptions.Builder().center(Point.fromLngLat(only.longitude, only.latitude)).zoom(14.0).build())
-        return
-    }
-    val south = waypoints.minOf { it.latitude }
-    val north = waypoints.maxOf { it.latitude }
-    val west = waypoints.minOf { it.longitude }
-    val east = waypoints.maxOf { it.longitude }
-    val center = Point.fromLngLat((west + east) / 2, (south + north) / 2)
-    // A zoom level that shows the larger of both spans; 360° of longitude is zoom 0
-    val span = maxOf(east - west, (north - south) * 1.5, 0.002)
-    val zoom = (kotlin.math.ln(360.0 / span) / kotlin.math.ln(2.0)).coerceIn(1.0, 15.0)
-    flyTo(CameraOptions.Builder().center(center).zoom(zoom).padding(EdgeInsets(80.0, 80.0, 80.0, 80.0)).build())
-}
+/** How close the map comes when it fits points: a single waypoint at street level. */
+private const val FOCUS_MAX_ZOOM = 15.0
 
 /** `#rrggbb` as an ARGB color; the default marker color for anything else. */
 internal fun parseColor(hex: String?): Int = runCatching {

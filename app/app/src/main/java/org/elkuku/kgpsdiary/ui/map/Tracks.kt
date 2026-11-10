@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,16 +47,27 @@ private val RecordingColor = Color(0xFFD50000)
 private val NightTrackColor = Color(0xFFCE93D8)
 private val NightRecordingColor = Color(0xFFFF5252)
 
-/** The saved tracks (purple, as on the web) and the one being recorded (red), as lines. */
+/** The saved tracks (purple, as on the web) and the one being recorded (red), as lines; a tap on a saved one gives its id. */
 @Composable
 @MapboxMapComposable
-fun TrackLines(tracks: List<Track>, recorded: List<RecordedPoint>, night: Boolean) {
+fun TrackLines(tracks: List<Track>, recorded: List<RecordedPoint>, night: Boolean, onClick: (Int) -> Unit) {
+    val currentOnClick by rememberUpdatedState(onClick)
     tracks.forEach { track ->
         val points = track.points.mapNotNull { point ->
             if (point.size >= 2) Point.fromLngLat(point[1], point[0]) else null
         }
         if (points.size >= 2) {
-            PolylineAnnotation(points = points) {
+            val click: (com.mapbox.maps.plugin.annotation.generated.PolylineAnnotation) -> Boolean = {
+                currentOnClick(track.id)
+                true
+            }
+            // A wide, all but invisible line under it: the thin one is hard to hit with a finger
+            PolylineAnnotation(points = points, onClick = click) {
+                lineColor = Color.Black
+                lineWidth = 24.0
+                lineOpacity = 0.01
+            }
+            PolylineAnnotation(points = points, onClick = click) {
                 lineColor = if (night) NightTrackColor else TrackColor
                 lineWidth = 4.0
                 lineOpacity = 0.8

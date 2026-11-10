@@ -111,4 +111,25 @@
         <item quantity="one">%1$s km · %2$d point</item>
         <item quantity="other">%1$s km · %2$d points</item>
     </plurals>
+    <string name="waypoint_share">Share position</string>
+    <string name="waypoint_open_in_map_app">Open in a map app</string>
+    <string name="waypoint_no_map_app">No map app is installed.</string>
+
+    <string name="tracks_title">Tracks</string>
+    <string name="tracks_none">No tracks yet. Record one with the red button on the map.</string>
+    <string name="track_rename">Rename track</string>
+    <string name="track_renamed">The track has been renamed.</string>
+    <string name="track_export">Export as GPX</string>
+    <string name="track_deleted">The track has been deleted.</string>
+    <string name="track_delete_text">Delete the track &#8220;%1$s&#8221;? It will be deleted on the web too.</string>
+    <string name="track_duration_minutes">%1$d min</string>
+    <string name="track_duration_hours">%1$d h %2$d min</string>
+    <string name="waypoint_show_on_map">Show on the map</string>
+
+    <plurals name="track_points">
+        <item quantity="one">%d point</item>
+        <item quantity="other">%d points</item>
+    </plurals>
+    <string name="track_hide">Hide on the map</string>
+    <string name="track_show">Show on the map again</string>
 </resources>

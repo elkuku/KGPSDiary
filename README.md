@@ -11,7 +11,9 @@ visit, a category, tags and photos, and see them on a map, in the Android app an
   both filter the map.
 - **Photos:** up to 50 per waypoint, scaled and stored without their location data.
 - **Tracks:** record where you walk with the app, also with the screen off; see your tracks on
-  both maps.
+  both maps, rename them, export them as GPX.
+- **Share a position:** the app sends a waypoint's coordinates as a `geo:` link, which any map
+  app opens; the title and description stay private.
 - **List and search:** all waypoints, newest visit first, searched by title, description,
   category and tags.
 - **Offline:** the app keeps your diary on the phone and shows it without a connection.

@@ -131,6 +131,14 @@ class KgpsApi @Inject constructor(
         }
     }
 
+    suspend fun renameTrack(idToken: String, id: Int, name: String): ApiResult<Track> = request {
+        client.patch("$root/api/tracks/$id") {
+            auth(idToken)
+            contentType(MergePatchJson)
+            setBody(TrackRename(name))
+        }
+    }
+
     suspend fun deleteTrack(idToken: String, id: Int): ApiResult<Unit> = delete(idToken, "/api/tracks/$id")
 
     private suspend fun delete(idToken: String, path: String): ApiResult<Unit> =

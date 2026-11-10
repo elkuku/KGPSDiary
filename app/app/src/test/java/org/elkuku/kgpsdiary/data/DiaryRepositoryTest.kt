@@ -53,6 +53,9 @@ class DiaryRepositoryTest {
         val engine = MockEngine { request ->
             if (!online) throw IOException("offline")
             if (request.method == HttpMethod.Delete) return@MockEngine respond("", HttpStatusCode.NoContent)
+            if (request.method == HttpMethod.Patch && request.url.encodedPath == "/api/tracks/4") {
+                return@MockEngine respond("""{"id":4,"name":"Renamed walk"}""", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/ld+json"))
+            }
             respond(server.getValue(request.url.encodedPath), HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/ld+json"))
         }
         val api = KgpsApi(HttpClient(engine) { install(ContentNegotiation) { kgpsJson() } }, "https://diary.test")
@@ -131,5 +134,20 @@ class DiaryRepositoryTest {
 
         assertTrue(cache.diaries.isEmpty())
         assertEquals(emptyList<Waypoint>(), diary.waypoints.value)
+    }
+
+    @Test
+    fun renamingAndDeletingTracksIsKeptOnThePhone() = runTest {
+        val (diary, sessions) = repository()
+        sessions.signIn(context)
+        diary.refresh(context)
+
+        assertTrue(diary.renameTrack(context, 4, " Renamed walk ") is ApiResult.Success)
+        assertEquals(listOf("Renamed walk"), diary.tracks.value.map { it.name })
+        assertEquals(listOf("Renamed walk"), cache.diaries.getValue("you@example.com").tracks.map { it.name })
+
+        assertTrue(diary.deleteTrack(context, 4) is ApiResult.Success)
+        assertEquals(emptyList<Track>(), diary.tracks.value)
+        assertEquals(emptyList<Track>(), cache.diaries.getValue("you@example.com").tracks)
     }
 }
