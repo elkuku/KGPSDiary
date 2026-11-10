@@ -44,3 +44,17 @@ app against a local server without it:
 2. `app/local.properties`: `debug.fakeSignInEmail=you@example.com`, and rebuild.
 
 The debug app then "signs in" with a fake token that only the dev server accepts.
+
+### On a phone
+
+A phone connected with USB debugging reaches the dev server through `adb reverse`:
+
+```shell
+adb reverse tcp:8000 tcp:8000
+```
+
+and `server.baseUrl.debug=http://localhost:8000` in `app/local.properties` (debug builds allow plain
+HTTP to `localhost` and `10.0.2.2` only).
+
+The map needs `mapbox.accessToken` (a public `pk.…` token) in `app/local.properties`. The Mapbox
+Maven repository needs no secret download token.

@@ -18,7 +18,10 @@ Kotlin and Jetpack Compose, package `org.elkuku.kgpsdiary`, minSdk 26.
 | Session | `auth/SessionManager.kt` | The signed-in account; API calls with its token, refreshed silently and retried once on `401`. |
 | API client | `data/KgpsApi.kt` | Ktor client for the JSON-LD API; answers become `ApiResult`s with the server's messages. |
 | DI | `di/` | Hilt modules: the HTTP client and server URL, the Google sign-in per build type. |
-| UI | `ui/` | `MainViewModel`, the sign-in and profile screens. |
+| Diary | `data/DiaryRepository.kt` | The user's waypoints, categories and tags as last loaded; saving and deleting go to the server first. |
+| Map | `ui/map/` | Mapbox Maps SDK (Compose extension): clustered markers in category colors, a long press adds a waypoint there, the + button one at the map's center, a tap shows a detail sheet. |
+| Edit | `ui/edit/` | Creating and editing a waypoint: title, description, position, visit date, category and tags. |
+| UI | `ui/` | `MainViewModel` (session), `AppNavHost` (type-safe Navigation Compose), the sign-in and profile screens. |
 
 Configuration comes from `app/local.properties` (see `local.properties.example`) and is compiled
 into `BuildConfig` and resources:

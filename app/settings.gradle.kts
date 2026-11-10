@@ -17,6 +17,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Mapbox Maps SDK; downloads need no secret token
+        maven {
+            url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
+            content { includeGroupByRegex("com\\.mapbox.*") }
+        }
     }
 }
 

@@ -15,6 +15,7 @@ import org.elkuku.kgpsdiary.UiText
 import org.elkuku.kgpsdiary.auth.AuthException
 import org.elkuku.kgpsdiary.auth.SessionManager
 import org.elkuku.kgpsdiary.data.ApiResult
+import org.elkuku.kgpsdiary.data.DiaryRepository
 import org.elkuku.kgpsdiary.data.KgpsApi
 import org.elkuku.kgpsdiary.data.Me
 import org.elkuku.kgpsdiary.uiText
@@ -36,9 +37,22 @@ data class MainUiState(
 class MainViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val api: KgpsApi,
+    private val diary: DiaryRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainUiState())
     val state: StateFlow<MainUiState> = _state.asStateFlow()
+
+    init {
+        // A session that ends elsewhere (a token the server keeps rejecting) signs out here too
+        viewModelScope.launch {
+            sessionManager.session.collect { session ->
+                if (session == null && _state.value.started && !_state.value.busy) {
+                    diary.clear()
+                    _state.update { it.copy(email = null, displayName = null, me = null) }
+                }
+            }
+        }
+    }
 
     /** Restores the session of an account that already signed in, once. */
     fun start(context: Context) {
@@ -66,6 +80,7 @@ class MainViewModel @Inject constructor(
 
     fun signOut(context: Context) = run {
         sessionManager.signOut(context)
+        diary.clear()
     }
 
     fun dismissMessage() = _state.update { it.copy(message = null) }

@@ -21,8 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import org.elkuku.kgpsdiary.ui.AppNavHost
 import org.elkuku.kgpsdiary.ui.MainViewModel
-import org.elkuku.kgpsdiary.ui.ProfileScreen
 import org.elkuku.kgpsdiary.ui.SignInScreen
 import org.elkuku.kgpsdiary.ui.theme.KGPSDiaryTheme
 
@@ -48,26 +48,26 @@ fun KGPSDiaryApp(viewModel: MainViewModel = hiltViewModel()) {
     val message = state.message?.asString()
 
     LaunchedEffect(Unit) { viewModel.start(context) }
-    LaunchedEffect(message) {
-        if (message != null) {
+    LaunchedEffect(message, state.signedIn) {
+        // Signed in, the profile screen shows the messages
+        if (message != null && !state.signedIn) {
             snackbarHostState.showSnackbar(message)
             viewModel.dismissMessage()
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
-        val modifier = Modifier.padding(padding)
-        when {
-            !state.started -> Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            state.signedIn -> ProfileScreen(
-                state = state,
-                onRefresh = { viewModel.refresh(context) },
-                onSignOut = { viewModel.signOut(context) },
-                modifier = modifier,
-            )
-            else -> SignInScreen(busy = state.busy, onSignIn = { viewModel.signIn(context) }, modifier = modifier)
+    when {
+        !state.started -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        // The screens have their own Scaffolds, snackbars and insets
+        state.signedIn -> AppNavHost(
+            mainState = state,
+            onRefreshProfile = { viewModel.refresh(context) },
+            onSignOut = { viewModel.signOut(context) },
+        )
+        else -> Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
+            SignInScreen(busy = state.busy, onSignIn = { viewModel.signIn(context) }, modifier = Modifier.padding(padding))
         }
     }
 }

@@ -20,4 +20,31 @@
     <string name="error_network">The server could not be reached: %1$s</string>
     <string name="error_server">The server answered with error %1$d.</string>
     <string name="error_response">The server sent an unexpected answer: %1$s</string>
+
+    <string name="profile">Profile</string>
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
+    <string name="map_my_location">Center on my location</string>
+    <string name="map_add_here">Add a waypoint at the center of the map</string>
+
+    <string name="waypoint_new">New waypoint</string>
+    <string name="waypoint_edit">Edit waypoint</string>
+    <string name="waypoint_title">Title</string>
+    <string name="waypoint_description">Description</string>
+    <string name="waypoint_latitude">Latitude</string>
+    <string name="waypoint_longitude">Longitude</string>
+    <string name="waypoint_visited_on">Visited on %1$s</string>
+    <string name="waypoint_no_visit_date">No visit date</string>
+    <string name="waypoint_clear_date">Clear date</string>
+    <string name="waypoint_category">Category</string>
+    <string name="waypoint_no_category">No category</string>
+    <string name="waypoint_tags">Tags</string>
+    <string name="waypoint_delete_title">Delete waypoint?</string>
+    <string name="waypoint_delete_text">&#8220;%1$s&#8221; will be deleted, on the web too.</string>
+    <string name="waypoint_deleted">The waypoint has been deleted.</string>
 </resources>

@@ -19,4 +19,31 @@
     <string name="error_network">Der Server ist nicht erreichbar: %1$s</string>
     <string name="error_server">Der Server hat mit Fehler %1$d geantwortet.</string>
     <string name="error_response">Der Server hat eine unerwartete Antwort gesendet: %1$s</string>
+
+    <string name="profile">Profil</string>
+    <string name="back">Zurück</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+
+    <string name="map_my_location">Auf meinen Standort zentrieren</string>
+    <string name="map_add_here">Wegpunkt in der Kartenmitte anlegen</string>
+
+    <string name="waypoint_new">Neuer Wegpunkt</string>
+    <string name="waypoint_edit">Wegpunkt bearbeiten</string>
+    <string name="waypoint_title">Titel</string>
+    <string name="waypoint_description">Beschreibung</string>
+    <string name="waypoint_latitude">Breitengrad</string>
+    <string name="waypoint_longitude">Längengrad</string>
+    <string name="waypoint_visited_on">Besucht am %1$s</string>
+    <string name="waypoint_no_visit_date">Kein Besuchsdatum</string>
+    <string name="waypoint_clear_date">Datum entfernen</string>
+    <string name="waypoint_category">Kategorie</string>
+    <string name="waypoint_no_category">Keine Kategorie</string>
+    <string name="waypoint_tags">Tags</string>
+    <string name="waypoint_delete_title">Wegpunkt löschen?</string>
+    <string name="waypoint_delete_text">„%1$s“ wird gelöscht, auch im Web.</string>
+    <string name="waypoint_deleted">Der Wegpunkt wurde gelöscht.</string>
 </resources>

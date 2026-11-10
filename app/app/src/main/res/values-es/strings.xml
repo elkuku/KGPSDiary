@@ -19,4 +19,31 @@
     <string name="error_network">No se pudo conectar con el servidor: %1$s</string>
     <string name="error_server">El servidor respondió con el error %1$d.</string>
     <string name="error_response">El servidor envió una respuesta inesperada: %1$s</string>
+
+    <string name="profile">Perfil</string>
+    <string name="back">Atrás</string>
+    <string name="ok">Aceptar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Eliminar</string>
+
+    <string name="map_my_location">Centrar en mi ubicación</string>
+    <string name="map_add_here">Añadir un punto en el centro del mapa</string>
+
+    <string name="waypoint_new">Nuevo punto</string>
+    <string name="waypoint_edit">Editar punto</string>
+    <string name="waypoint_title">Título</string>
+    <string name="waypoint_description">Descripción</string>
+    <string name="waypoint_latitude">Latitud</string>
+    <string name="waypoint_longitude">Longitud</string>
+    <string name="waypoint_visited_on">Visitado el %1$s</string>
+    <string name="waypoint_no_visit_date">Sin fecha de visita</string>
+    <string name="waypoint_clear_date">Quitar fecha</string>
+    <string name="waypoint_category">Categoría</string>
+    <string name="waypoint_no_category">Sin categoría</string>
+    <string name="waypoint_tags">Etiquetas</string>
+    <string name="waypoint_delete_title">¿Eliminar el punto?</string>
+    <string name="waypoint_delete_text">«%1$s» se eliminará, también en la web.</string>
+    <string name="waypoint_deleted">El punto se ha eliminado.</string>
 </resources>
