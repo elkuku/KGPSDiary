@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.elkuku.kgpsdiary.BuildConfig
 import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.ui.manage.ColorDot
 
@@ -46,7 +47,13 @@ fun MapDrawer(
             Text(
                 stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 28.dp, vertical = 20.dp),
+                modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 20.dp),
+            )
+            Text(
+                stringResource(if (BuildConfig.DEBUG) R.string.drawer_version_debug else R.string.drawer_version, BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 2.dp, bottom = 16.dp),
             )
             DrawerItem(R.drawable.ic_list, R.string.list_title, onList)
             DrawerItem(R.drawable.ic_timeline, R.string.tracks_title, onTracks)

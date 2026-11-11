@@ -148,4 +148,6 @@
     <string name="settings_map_style">Estilo del mapa</string>
     <string name="settings_map_standard">Estándar</string>
     <string name="settings_map_without_businesses">Estándar sin negocios</string>
+    <string name="drawer_version">Versión %1$s</string>
+    <string name="drawer_version_debug">Versión %1$s (debug)</string>
 </resources>

@@ -144,4 +144,6 @@
     <string name="settings_map_style">Map style</string>
     <string name="settings_map_standard">Standard</string>
     <string name="settings_map_without_businesses">Standard without businesses</string>
+    <string name="drawer_version">Version %1$s</string>
+    <string name="drawer_version_debug">Version %1$s (debug)</string>
 </resources>
