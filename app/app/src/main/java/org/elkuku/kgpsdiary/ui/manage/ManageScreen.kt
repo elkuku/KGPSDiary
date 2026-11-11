@@ -46,6 +46,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.asString
 import org.elkuku.kgpsdiary.data.Category
@@ -104,7 +109,7 @@ fun ManageScreen(onBack: () -> Unit, viewModel: ManageViewModel = hiltViewModel(
                 ListItem(
                     headlineContent = { Text(category.name) },
                     supportingContent = { Text(waypointCount(state.categoryCounts[category.id] ?: 0)) },
-                    leadingContent = { ColorDot(category.color, 24) },
+                    leadingContent = { CategoryBadge(category.color, category.icon, 28) },
                     trailingContent = {
                         IconButton(onClick = { deleting = Editing.CategoryEdit(category) }) { Icon(painterResource(R.drawable.ic_delete), stringResource(R.string.delete)) }
                     },
@@ -198,17 +203,17 @@ fun ColorDot(color: String, size: Int, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CategoryDialog(category: Category?, busy: Boolean, onDismiss: () -> Unit, onSave: (CategoryInput) -> Unit) {
+fun CategoryDialog(category: Category?, busy: Boolean, onDismiss: () -> Unit, onSave: (CategoryInput) -> Unit) {
     var name by remember { mutableStateOf(category?.name.orEmpty()) }
     var color by remember { mutableStateOf(category?.color ?: CategoryColors[4]) }
-    var icon by remember { mutableStateOf(category?.icon.orEmpty()) }
-    val iconValid = icon.isEmpty() || icon.matches(Regex("[a-z0-9_]+"))
+    // A name the app doesn't know (typed on the web before the symbols) starts as none
+    var icon by remember { mutableStateOf(category?.icon?.takeIf { CategorySymbols.drawable(it) != null }) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(if (category == null) R.string.manage_new_category else R.string.manage_edit_category)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -227,28 +232,44 @@ private fun CategoryDialog(category: Category?, busy: Boolean, onDismiss: () -> 
                         )
                     }
                 }
-                OutlinedTextField(
-                    value = icon,
-                    onValueChange = { icon = it.trim() },
-                    label = { Text(stringResource(R.string.manage_icon)) },
-                    supportingText = { Text(stringResource(R.string.manage_icon_help)) },
-                    isError = !iconValid,
-                    singleLine = true,
-                )
+                Text(stringResource(R.string.manage_symbol), style = MaterialTheme.typography.titleSmall)
+                SymbolPicker(color = color, selected = icon, onSelect = { icon = it })
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onSave(CategoryInput(name.trim(), color, icon.ifEmpty { null })) },
-                enabled = !busy && name.isNotBlank() && iconValid,
+                onClick = { onSave(CategoryInput(name.trim(), color, icon)) },
+                enabled = !busy && name.isNotBlank(),
             ) { Text(stringResource(R.string.save)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
+/** No symbol, then one badge per symbol in the category's [color]; the selected one framed. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TagDialog(tag: Tag?, busy: Boolean, onDismiss: () -> Unit, onSave: (TagInput) -> Unit) {
+private fun SymbolPicker(color: String, selected: String?, onSelect: (String?) -> Unit) {
+    val frame = MaterialTheme.colorScheme.onSurface
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        (listOf<String?>(null) + CategorySymbols.all.map { it.first }).forEach { name ->
+            val isSelected = name == selected
+            val label = name ?: stringResource(R.string.manage_symbol_none)
+            CategoryBadge(
+                color,
+                name,
+                34,
+                Modifier
+                    .border(if (isSelected) 3.dp else 0.dp, if (isSelected) frame else Color.Transparent, CircleShape)
+                    .semantics { contentDescription = label; this.selected = isSelected }
+                    .clickable { onSelect(name) },
+            )
+        }
+    }
+}
+
+@Composable
+fun TagDialog(tag: Tag?, busy: Boolean, onDismiss: () -> Unit, onSave: (TagInput) -> Unit) {
     var name by remember { mutableStateOf(tag?.name.orEmpty()) }
 
     AlertDialog(

@@ -55,8 +55,9 @@ category:
     edit: Editar categoría
     name: Nombre
     color: Color
-    icon: Icono
-    icon_help: 'Opcional: un nombre de Material Symbols como «hiking», para la app.'
+    icon: Símbolo
+    icon_help: 'El símbolo en los marcadores de los puntos, en la web y en la app.'
+    icon_none: Ninguno
     delete_confirm: '¿Eliminar la categoría «{name}»? Sus puntos se mantienen.'
     flash:
         created: La categoría se ha añadido.

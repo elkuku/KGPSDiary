@@ -56,7 +56,8 @@ category:
     name: Name
     color: Farbe
     icon: Symbol
-    icon_help: 'Optional: ein Material-Symbols-Name wie „hiking“, für die App.'
+    icon_help: 'Das Symbol in den Markierungen der Wegpunkte, im Web und in der App.'
+    icon_none: Keins
     delete_confirm: 'Die Kategorie „{name}“ löschen? Ihre Wegpunkte bleiben.'
     flash:
         created: Die Kategorie wurde hinzugefügt.

@@ -26,6 +26,16 @@ class CategoryTagApiTest extends ApiTestCase
         self::assertSame(['color', 'icon', 'name'], $paths);
     }
 
+    public function testTheSymbolIsOneOfTheCategorySymbols(): void
+    {
+        $json = $this->api('POST', '/api/categories', ['name' => 'Hikes', 'icon' => 'hiking']);
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame('icon', $json['violations'][0]['propertyPath'] ?? null);
+
+        $json = $this->api('GET', $this->create('/api/categories', ['name' => 'Walks', 'icon' => 'directions_walk']));
+        self::assertSame('directions_walk', $json['icon']);
+    }
+
     public function testNamesAreUniquePerUser(): void
     {
         foreach (['/api/categories', '/api/tags'] as $collection) {

@@ -35,6 +35,8 @@ final class Features extends BaseController
                     'categoryId' => $category?->getId(),
                     'tagIds' => $waypoint->getTags()->map(static fn (Tag $tag): ?int => $tag->getId())->getValues(),
                     'color' => $category?->getColor() ?? '#d84315',
+                    // The marker's symbol (see category_symbol_paths()), '' for none
+                    'icon' => $category?->getIcon() ?? '',
                     'url' => $this->generateUrl('app_waypoint_show', ['id' => $waypoint->getId()]),
                 ],
             ];

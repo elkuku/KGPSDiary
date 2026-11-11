@@ -40,8 +40,6 @@
     <string name="waypoint_edit">Edit waypoint</string>
     <string name="waypoint_title">Title</string>
     <string name="waypoint_description">Description</string>
-    <string name="waypoint_latitude">Latitude</string>
-    <string name="waypoint_longitude">Longitude</string>
     <string name="waypoint_visited_on">Visited on %1$s</string>
     <string name="waypoint_no_visit_date">No visit date</string>
     <string name="waypoint_clear_date">Clear date</string>
@@ -63,8 +61,6 @@
     <string name="manage_new_tag">New tag</string>
     <string name="manage_edit_tag">Edit tag</string>
     <string name="manage_name">Name</string>
-    <string name="manage_icon">Icon (optional)</string>
-    <string name="manage_icon_help">A Material Symbols name like hiking</string>
     <string name="manage_delete_category">Delete the category &#8220;%1$s&#8221;? Its waypoints stay.</string>
     <string name="manage_delete_tag">Delete the tag &#8220;%1$s&#8221;? Its waypoints stay.</string>
     <string name="map_shown">%1$d of %2$d</string>
@@ -146,4 +142,8 @@
     <string name="settings_map_without_businesses">Standard without businesses</string>
     <string name="drawer_version">Version %1$s</string>
     <string name="drawer_version_debug">Version %1$s (debug)</string>
+    <string name="waypoint_position">Position</string>
+    <string name="waypoint_position_help">Move the map until the pin points to the place.</string>
+    <string name="manage_symbol">Symbol</string>
+    <string name="manage_symbol_none">No symbol</string>
 </resources>

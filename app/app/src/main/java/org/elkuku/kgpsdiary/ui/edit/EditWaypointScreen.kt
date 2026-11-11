@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -54,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,11 +61,21 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AssistChip
 import org.elkuku.kgpsdiary.R
+import org.elkuku.kgpsdiary.data.CategoryInput
+import org.elkuku.kgpsdiary.data.TagInput
+import org.elkuku.kgpsdiary.ui.manage.CategoryDialog
+import org.elkuku.kgpsdiary.ui.manage.CategoryBadge
+import org.elkuku.kgpsdiary.ui.manage.TagDialog
 import org.elkuku.kgpsdiary.asString
 
 /** Creates a waypoint, or edits one; closes itself once saved. */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun EditWaypointScreen(onDone: () -> Unit, viewModel: EditWaypointViewModel = hiltViewModel()) {
     val context = LocalContext.current
@@ -103,19 +111,38 @@ fun EditWaypointScreen(onDone: () -> Unit, viewModel: EditWaypointViewModel = hi
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
-        WaypointFormFields(
-            state = state,
-            onChange = viewModel::update,
-            photos = {
-                PhotosField(
-                    state = state,
-                    onPick = viewModel::addPhotos,
-                    onRemovePending = viewModel::removePendingPhoto,
-                    onDelete = { photoId -> viewModel.deletePhoto(context, photoId) },
+        Column(Modifier.padding(padding).imePadding()) {
+            // While typing, the keyboard needs the room
+            if (!WindowInsets.isImeVisible) {
+                PositionMap(
+                    latitude = state.form.latitudeValue,
+                    longitude = state.form.longitudeValue,
+                    onMove = viewModel::moveTo,
+                    modifier = Modifier.fillMaxWidth().height(240.dp),
                 )
-            },
-            modifier = Modifier.padding(padding).imePadding(),
-        )
+                Text(
+                    stringResource(R.string.waypoint_position_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                )
+            }
+            WaypointFormFields(
+                state = state,
+                onChange = viewModel::update,
+                onCreateCategory = { input, onCreated -> viewModel.createCategory(context, input, onCreated) },
+                onCreateTag = { input, onCreated -> viewModel.createTag(context, input, onCreated) },
+                photos = {
+                    PhotosField(
+                        state = state,
+                        onPick = viewModel::addPhotos,
+                        onRemovePending = viewModel::removePendingPhoto,
+                        onDelete = { photoId -> viewModel.deletePhoto(context, photoId) },
+                    )
+                },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -124,11 +151,15 @@ fun EditWaypointScreen(onDone: () -> Unit, viewModel: EditWaypointViewModel = hi
 private fun WaypointFormFields(
     state: EditWaypointUiState,
     onChange: ((WaypointForm) -> WaypointForm) -> Unit,
+    onCreateCategory: (CategoryInput, onCreated: () -> Unit) -> Unit,
+    onCreateTag: (TagInput, onCreated: () -> Unit) -> Unit,
     photos: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val form = state.form
     var pickDate by remember { mutableStateOf(false) }
+    var newCategory by remember { mutableStateOf(false) }
+    var newTag by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -149,27 +180,6 @@ private fun WaypointFormFields(
             minLines = 4,
             modifier = Modifier.fillMaxWidth(),
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedTextField(
-                value = form.latitude,
-                onValueChange = { value -> onChange { it.copy(latitude = value) } },
-                label = { Text(stringResource(R.string.waypoint_latitude)) },
-                isError = form.latitudeValue == null,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.weight(1f),
-            )
-            OutlinedTextField(
-                value = form.longitude,
-                onValueChange = { value -> onChange { it.copy(longitude = value) } },
-                label = { Text(stringResource(R.string.waypoint_longitude)) },
-                isError = form.longitudeValue == null,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.weight(1f),
-            )
-        }
-
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { pickDate = true }) {
                 Text(
@@ -182,23 +192,42 @@ private fun WaypointFormFields(
             }
         }
 
-        CategoryField(state, onChange)
+        CategoryField(state, onChange, onNew = { newCategory = true })
 
         photos()
 
-        if (state.tags.isNotEmpty()) {
-            Text(stringResource(R.string.waypoint_tags), style = MaterialTheme.typography.titleSmall)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                state.tags.forEach { tag ->
-                    val selected = tag.id in form.tagIds
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onChange { it.copy(tagIds = if (selected) it.tagIds - tag.id else it.tagIds + tag.id) } },
-                        label = { Text(tag.name) },
-                    )
-                }
+        Text(stringResource(R.string.waypoint_tags), style = MaterialTheme.typography.titleSmall)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            state.tags.forEach { tag ->
+                FilterChip(
+                    selected = tag.id in form.tagIds,
+                    onClick = { onChange { it.toggleTag(tag.id) } },
+                    label = { Text(tag.name) },
+                )
             }
+            AssistChip(
+                onClick = { newTag = true },
+                label = { Text(stringResource(R.string.manage_new_tag)) },
+                leadingIcon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null, Modifier.size(18.dp)) },
+            )
         }
+    }
+
+    if (newCategory) {
+        CategoryDialog(
+            category = null,
+            busy = state.creating,
+            onDismiss = { newCategory = false },
+            onSave = { input -> onCreateCategory(input) { newCategory = false } },
+        )
+    }
+    if (newTag) {
+        TagDialog(
+            tag = null,
+            busy = state.creating,
+            onDismiss = { newTag = false },
+            onSave = { input -> onCreateTag(input) { newTag = false } },
+        )
     }
 
     if (pickDate) {
@@ -272,7 +301,7 @@ private const val MAX_PICKED = 10
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoryField(state: EditWaypointUiState, onChange: ((WaypointForm) -> WaypointForm) -> Unit) {
+private fun CategoryField(state: EditWaypointUiState, onChange: ((WaypointForm) -> WaypointForm) -> Unit, onNew: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val selected = state.categories.find { it.id == state.form.categoryId }
 
@@ -296,12 +325,21 @@ private fun CategoryField(state: EditWaypointUiState, onChange: ((WaypointForm) 
             state.categories.forEach { category ->
                 DropdownMenuItem(
                     text = { Text(category.name) },
+                    leadingIcon = { CategoryBadge(category.color, category.icon, 22) },
                     onClick = {
                         onChange { it.copy(categoryId = category.id) }
                         expanded = false
                     },
                 )
             }
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.manage_new_category)) },
+                leadingIcon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                onClick = {
+                    expanded = false
+                    onNew()
+                },
+            )
         }
     }
 }

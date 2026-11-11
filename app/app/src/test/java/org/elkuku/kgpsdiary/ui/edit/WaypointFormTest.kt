@@ -28,4 +28,21 @@ class WaypointFormTest {
         assertNull(valid.copy(latitude = "north").latitudeValue)
         assertFalse(valid.copy(latitude = "").isValid)
     }
+
+    @Test
+    fun theMapSetsThePositionWithSixDecimals() {
+        val moved = valid.at(-0.18065432, -78.4678)
+
+        assertEquals("-0.180654", moved.latitude)
+        assertEquals("-78.467800", moved.longitude)
+        assertEquals(-0.180654, moved.latitudeValue)
+        assertTrue(moved.isValid)
+    }
+
+    @Test
+    fun aTagIsSelectedAndDeselected() {
+        val tagged = valid.toggleTag(7).toggleTag(9)
+        assertEquals(setOf(7, 9), tagged.tagIds)
+        assertEquals(setOf(9), tagged.toggleTag(7).tagIds)
+    }
 }

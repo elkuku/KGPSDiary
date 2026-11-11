@@ -2,6 +2,8 @@
 
 {% block title %}{{ category.name }} - {{ parent() }}{% endblock %}
 
+{% form_theme form 'category/_form_theme.html.twig' %}
+
 {% block body %}
     <h2 class="mt-4">{{ 'category.edit'|trans }}</h2>
 

@@ -74,12 +74,14 @@ import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
-import com.mapbox.maps.extension.compose.annotation.generated.CircleAnnotationGroup
-import com.mapbox.maps.extension.compose.annotation.generated.rememberCircleAnnotationGroupInteractionsState
+import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotationGroup
+import com.mapbox.maps.extension.compose.annotation.generated.rememberPointAnnotationGroupInteractionsState
 import com.mapbox.maps.plugin.annotation.AnnotationConfig
 import com.mapbox.maps.plugin.annotation.AnnotationSourceOptions
 import com.mapbox.maps.plugin.annotation.ClusterOptions
-import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import android.graphics.Bitmap
+import org.elkuku.kgpsdiary.ui.manage.markerBitmap
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
 import java.time.Instant
@@ -422,18 +424,22 @@ private fun OfflineNotice(syncedAt: Instant?, onRetry: () -> Unit, modifier: Mod
 
 @Composable
 private fun WaypointMarkers(waypoints: List<Waypoint>, viewportState: MapViewportState, onClick: (Int) -> Unit) {
+    val context = LocalContext.current
+    // One image per category look, not per waypoint
+    val images = remember { mutableMapOf<String, Bitmap>() }
     val options = remember(waypoints) {
         waypoints.map { waypoint ->
-            CircleAnnotationOptions()
+            val color = waypoint.category?.color
+            val icon = waypoint.category?.icon
+            PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(waypoint.longitude, waypoint.latitude))
-                .withCircleColor(parseColor(waypoint.category?.color))
-                .withCircleRadius(9.0)
+                .withIconImage(images.getOrPut("$color|$icon") { markerBitmap(context, color, icon) })
                 .withData(JsonPrimitive(waypoint.id))
         }
     }
 
     val currentOnClick by rememberUpdatedState(onClick)
-    val interactions = rememberCircleAnnotationGroupInteractionsState {
+    val interactions = rememberPointAnnotationGroupInteractionsState {
         onClicked { annotation ->
             annotation.getData()?.asInt?.let { currentOnClick(it) }
             true
@@ -448,16 +454,16 @@ private fun WaypointMarkers(waypoints: List<Waypoint>, viewportState: MapViewpor
         }
     }
 
-    CircleAnnotationGroup(
+    PointAnnotationGroup(
         annotations = options,
         annotationConfig = AnnotationConfig(
             annotationSourceOptions = AnnotationSourceOptions(clusterOptions = ClusterOptions(clusterRadius = 50L)),
         ),
     ) {
-        circleStrokeColor = Color.White
-        circleStrokeWidth = 2.0
+        iconAllowOverlap = true
+        iconIgnorePlacement = true
         // Unlit: the Standard style's night light would darken the category colors
-        circleEmissiveStrength = 1.0
+        iconEmissiveStrength = 1.0
         interactionsState = interactions
     }
 }

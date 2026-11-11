@@ -1,0 +1,21 @@
+{# The category's symbol: a row of buttons, one per symbol and one for none #}
+{% block _category_icon_widget %}
+    <div class="d-flex flex-wrap gap-1" role="radiogroup" id="{{ id }}">
+        {% for child in form %}
+            <input type="radio" class="btn-check" id="{{ child.vars.id }}" name="{{ child.vars.full_name }}"
+                   value="{{ child.vars.value }}" autocomplete="off"{% if child.vars.checked %} checked{% endif %}>
+            <label class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center p-0"
+                   style="width: 2.5rem; height: 2.5rem" for="{{ child.vars.id }}"
+                   title="{{ child.vars.value ? child.vars.value : 'category.icon_none'|trans }}">
+                {% if child.vars.value %}
+                    {{ category_symbol(child.vars.value, 22) }}
+                    <span class="visually-hidden">{{ child.vars.value }}</span>
+                {% else %}
+                    <span aria-hidden="true">–</span>
+                    <span class="visually-hidden">{{ 'category.icon_none'|trans }}</span>
+                {% endif %}
+            </label>
+            {% do child.setRendered %}
+        {% endfor %}
+    </div>
+{% endblock %}

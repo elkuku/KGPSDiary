@@ -90,8 +90,9 @@ Invalid filter values are `400`.
 ## Categories and tags
 
 A category has a `name` (required, unique per user, up to 50 characters), a `color` (`#rrggbb`,
-default `#2e7d32`) and an `icon` (a [Material Symbols](https://fonts.google.com/icons) name like
-`hiking`, or `null`). A tag only has a `name` (required, unique per user).
+default `#2e7d32`) and an `icon`: `null` or one of the category symbols, [Material Symbols](https://fonts.google.com/icons)
+names listed in `web/src/Category/CategorySymbols.php` (e.g. `restaurant`, `museum`, `directions_walk`);
+other names are refused (422). The markers show it in white on the category color. A tag only has a `name` (required, unique per user).
 
 ```shell
 curl -H "Authorization: Bearer $ID_TOKEN" -H "Accept: application/ld+json" https://kgpsdiary.elkuku.dev/api/me

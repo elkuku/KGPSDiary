@@ -39,8 +39,6 @@
     <string name="waypoint_edit">Wegpunkt bearbeiten</string>
     <string name="waypoint_title">Titel</string>
     <string name="waypoint_description">Beschreibung</string>
-    <string name="waypoint_latitude">Breitengrad</string>
-    <string name="waypoint_longitude">Längengrad</string>
     <string name="waypoint_visited_on">Besucht am %1$s</string>
     <string name="waypoint_no_visit_date">Kein Besuchsdatum</string>
     <string name="waypoint_clear_date">Datum entfernen</string>
@@ -62,8 +60,6 @@
     <string name="manage_new_tag">Neuer Tag</string>
     <string name="manage_edit_tag">Tag bearbeiten</string>
     <string name="manage_name">Name</string>
-    <string name="manage_icon">Symbol (optional)</string>
-    <string name="manage_icon_help">Ein Material-Symbols-Name wie hiking</string>
     <string name="manage_delete_category">Die Kategorie „%1$s“ löschen? Ihre Wegpunkte bleiben.</string>
     <string name="manage_delete_tag">Den Tag „%1$s“ löschen? Seine Wegpunkte bleiben.</string>
     <string name="map_shown">%1$d von %2$d</string>
@@ -145,4 +141,8 @@
     <string name="settings_map_without_businesses">Standard ohne Geschäfte</string>
     <string name="drawer_version">Version %1$s</string>
     <string name="drawer_version_debug">Version %1$s (Debug)</string>
+    <string name="waypoint_position">Position</string>
+    <string name="waypoint_position_help">Verschiebe die Karte, bis die Nadel auf den Ort zeigt.</string>
+    <string name="manage_symbol">Symbol</string>
+    <string name="manage_symbol_none">Kein Symbol</string>
 </resources>

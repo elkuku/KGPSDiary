@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Category\CategorySymbols;
 use App\Repository\CategoryRepository;
 use App\Validator\UniqueForOwner;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(fields: ['owner', 'name'])]
 #[UniqueForOwner(field: 'name')]
 #[ApiResource(
-    description: "The user's categories. A waypoint has at most one; it sets the marker's color (#rrggbb) and icon (a Material Symbols name). Names are unique per user. Deleting a category removes it from its waypoints.",
+    description: "The user's categories. A waypoint has at most one; it sets the marker's color (#rrggbb) and icon (one of the category symbols: a Material Symbols name). Names are unique per user. Deleting a category removes it from its waypoints.",
     operations: [
         new GetCollection(),
         new Post(),
@@ -65,8 +66,7 @@ class Category implements OwnedInterface
 
     #[ORM\Column(length: 50, nullable: true)]
     #[Groups([self::READ, self::WRITE, Waypoint::READ])]
-    #[Assert\Length(max: 50)]
-    #[Assert\Regex(pattern: '/^[a-z0-9_]+$/', message: 'Use a Material Symbols name like "hiking".')]
+    #[Assert\Choice(callback: [CategorySymbols::class, 'names'], message: 'Choose one of the category symbols.')]
     private ?string $icon = null;
 
     public function getId(): ?int

@@ -20,9 +20,11 @@ import org.elkuku.kgpsdiary.R
 import org.elkuku.kgpsdiary.UiText
 import org.elkuku.kgpsdiary.data.ApiResult
 import org.elkuku.kgpsdiary.data.Category
+import org.elkuku.kgpsdiary.data.CategoryInput
 import org.elkuku.kgpsdiary.data.DiaryRepository
 import org.elkuku.kgpsdiary.data.Photo
 import org.elkuku.kgpsdiary.data.Tag
+import org.elkuku.kgpsdiary.data.TagInput
 import org.elkuku.kgpsdiary.data.WaypointInput
 import org.elkuku.kgpsdiary.ui.EditWaypointRoute
 import org.elkuku.kgpsdiary.uiText
@@ -40,6 +42,15 @@ data class WaypointForm(
     val latitudeValue: Double? get() = latitude.replace(',', '.').toDoubleOrNull()?.takeIf { it in -90.0..90.0 }
     val longitudeValue: Double? get() = longitude.replace(',', '.').toDoubleOrNull()?.takeIf { it in -180.0..180.0 }
     val isValid: Boolean get() = title.isNotBlank() && latitudeValue != null && longitudeValue != null
+
+    /** Where the map's pin points. */
+    fun at(latitude: Double, longitude: Double) = copy(latitude = coordinate(latitude), longitude = coordinate(longitude))
+
+    fun toggleTag(id: Int) = copy(tagIds = if (id in tagIds) tagIds - id else tagIds + id)
+
+    companion object {
+        fun coordinate(value: Double): String = "%.6f".format(java.util.Locale.ROOT, value)
+    }
 }
 
 data class EditWaypointUiState(
@@ -53,6 +64,8 @@ data class EditWaypointUiState(
     /** Picked photos, uploaded when the waypoint is saved. */
     val pendingPhotos: List<Uri> = emptyList(),
     val saving: Boolean = false,
+    /** A new category or tag is being saved. */
+    val creating: Boolean = false,
     /** True once saved: the screen closes. */
     val saved: Boolean = false,
     val message: UiText? = null,
@@ -71,6 +84,42 @@ class EditWaypointViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), local.value)
 
     fun update(change: (WaypointForm) -> WaypointForm) = local.update { it.copy(form = change(it.form)) }
+
+    /** The map was moved: the waypoint goes where its pin points. */
+    fun moveTo(latitude: Double, longitude: Double) = update { it.at(latitude, longitude) }
+
+    /** Saves a new category and selects it; [onCreated] closes the dialog. */
+    fun createCategory(context: Context, input: CategoryInput, onCreated: () -> Unit) = create(onCreated) {
+        diary.saveCategory(context, null, input).also { result ->
+            if (result is ApiResult.Success) update { it.copy(categoryId = result.value.id) }
+        }
+    }
+
+    /** Saves a new tag and selects it. */
+    fun createTag(context: Context, input: TagInput, onCreated: () -> Unit) = create(onCreated) {
+        diary.saveTag(context, null, input).also { result ->
+            if (result is ApiResult.Success) update { it.copy(tagIds = it.tagIds + result.value.id) }
+        }
+    }
+
+    private fun create(onCreated: () -> Unit, call: suspend () -> ApiResult<*>) {
+        if (local.value.creating) return
+        viewModelScope.launch {
+            local.update { it.copy(creating = true) }
+            val result = call()
+            local.update {
+                it.copy(
+                    creating = false,
+                    message = when (result) {
+                        is ApiResult.Success -> null
+                        is ApiResult.Unauthorized -> result.message ?: uiText(R.string.error_unauthorized)
+                        is ApiResult.Failure -> result.message
+                    },
+                )
+            }
+            if (result is ApiResult.Success) onCreated()
+        }
+    }
 
     fun addPhotos(uris: List<Uri>) = local.update { it.copy(pendingPhotos = (it.pendingPhotos + uris).distinct()) }
 
@@ -152,8 +201,8 @@ class EditWaypointViewModel @Inject constructor(
             )
         }
         return WaypointForm(
-            latitude = route.latitude?.let { "%.6f".format(java.util.Locale.ROOT, it) }.orEmpty(),
-            longitude = route.longitude?.let { "%.6f".format(java.util.Locale.ROOT, it) }.orEmpty(),
+            latitude = route.latitude?.let(WaypointForm::coordinate).orEmpty(),
+            longitude = route.longitude?.let(WaypointForm::coordinate).orEmpty(),
         )
     }
 }

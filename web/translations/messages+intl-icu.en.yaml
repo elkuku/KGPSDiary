@@ -55,8 +55,9 @@ category:
     edit: Edit category
     name: Name
     color: Color
-    icon: Icon
-    icon_help: 'Optional: a Material Symbols name like "hiking", for the app.'
+    icon: Symbol
+    icon_help: 'The symbol in the markers of the waypoints, on the web and in the app.'
+    icon_none: None
     delete_confirm: 'Delete the category "{name}"? Its waypoints stay.'
     flash:
         created: The category has been added.

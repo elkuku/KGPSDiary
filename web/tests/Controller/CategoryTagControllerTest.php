@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Category\CategorySymbols;
 use App\Entity\Category;
 use App\Entity\Tag;
 use App\Entity\User;
@@ -66,6 +67,22 @@ class CategoryTagControllerTest extends WebTestCase
         self::assertSame('#ff8800', $category->getColor());
         self::assertSame('museum', $category->getIcon());
         self::assertSame($this->user('user')->id, $category->getOwner()?->id);
+
+        // The list shows the symbol, the form one button per symbol and one for none
+        self::assertSelectorExists('.list-group svg path');
+        self::assertCount(\count(CategorySymbols::PATHS) + 1, $this->client->getCrawler()->filter('input[name="category[icon]"]'));
+    }
+
+    public function testOnlyTheCategorySymbolsCanBeChosen(): void
+    {
+        $this->client->loginUser($this->user('user'));
+        $crawler = $this->client->request('GET', '/categories');
+        // A value the buttons don't offer, as a crafted request would send
+        $form = $crawler->selectButton('Add category')->form()->disableValidation();
+        $this->client->submit($form, ['category[name]' => 'Hikes', 'category[icon]' => 'hiking']);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertNull($this->categories()->findOneBy(['name' => 'Hikes']));
     }
 
     public function testNamesAreUniquePerUser(): void

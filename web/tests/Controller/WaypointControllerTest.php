@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Category\CategorySymbols;
 use App\Entity\Category;
 use App\Entity\Tag;
 use App\Entity\Track;
@@ -66,11 +67,16 @@ class WaypointControllerTest extends WebTestCase
         self::assertSame('/map/waypoints.geojson', $map->attr('data-map-features-url-value'));
         self::assertSame('/waypoints/new', $map->attr('data-map-new-url-value'));
         self::assertSame('[-78.5,-0.2]', $map->attr('data-map-center-value'));
+
+        // The markers' symbols, drawn by the map
+        $symbols = \json_decode((string) $map->attr('data-map-symbols-value'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($symbols);
+        self::assertSame(CategorySymbols::PATHS, $symbols);
     }
 
     public function testTheMapShowsOnlyTheUsersWaypoints(): void
     {
-        $category = new Category()->setName('Monuments')->setColor('#ff8800')->setOwner($this->user('user'));
+        $category = new Category()->setName('Monuments')->setColor('#ff8800')->setIcon('museum')->setOwner($this->user('user'));
         $this->entityManager()->persist($category);
         $mine = $this->waypoint('user', 'Mitad del Mundo', -0.0022, -78.4558)
             ->setCategory($category)
@@ -97,6 +103,7 @@ class WaypointControllerTest extends WebTestCase
                 'categoryId' => $category->getId(),
                 'tagIds' => [],
                 'color' => '#ff8800',
+                'icon' => 'museum',
                 'url' => '/waypoints/'.$mine->getId(),
             ],
         ]], $json['features']);

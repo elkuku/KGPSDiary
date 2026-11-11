@@ -7,7 +7,7 @@ A GPS diary: save the places you visit as waypoints, with a title, a description
 visit, a category, tags and photos, and see them on a map, in the Android app and on the web.
 
 - **Map:** your waypoints in their category colors; tap or click to add one where you are looking.
-- **Categories and tags:** a category colors the waypoint's marker, tags help you find it again;
+- **Categories and tags:** a category gives the waypoint's marker its color and a symbol, tags help you find it again;
   both filter the map.
 - **Photos:** up to 50 per waypoint, scaled and stored without their location data.
 - **Tracks:** record where you walk with the app, also with the screen off; see your tracks on

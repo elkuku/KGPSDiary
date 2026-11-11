@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elkuku.kgpsdiary.BuildConfig
 import org.elkuku.kgpsdiary.R
-import org.elkuku.kgpsdiary.ui.manage.ColorDot
+import org.elkuku.kgpsdiary.ui.manage.CategoryBadge
 
 /** The map's menu: where to go, what to do, and the filters for the map. */
 @Composable
@@ -89,7 +89,7 @@ fun MapDrawer(
                             selected = category.id == state.categoryId,
                             onClick = { onCategory(category.id) },
                             label = { Text(category.name) },
-                            leadingIcon = { ColorDot(category.color, 12) },
+                            leadingIcon = { CategoryBadge(category.color, category.icon, 20) },
                         )
                     }
                     state.tags.forEach { tag ->

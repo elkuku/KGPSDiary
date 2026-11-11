@@ -4,6 +4,11 @@ import 'mapbox-gl/dist/mapbox-gl.min.css';
 
 const SOURCE = 'waypoints';
 
+/** A waypoint with a category symbol: its marker is bigger, the symbol white in it. */
+const HAS_SYMBOL = ['!=', ['coalesce', ['get', 'icon'], ''], ''];
+/** Symbol size in CSS pixels, drawn at twice the resolution. */
+const SYMBOL_SIZE = 16;
+
 /**
  * The user's waypoints on a Mapbox map, in their category colors and clustered when zoomed out.
  * A click on a waypoint shows it, a click elsewhere offers a new waypoint at that place.
@@ -18,6 +23,8 @@ export default class extends Controller {
         newUrl: String,
         center: Array,
         labels: Object,
+        /** The category symbols' 24×24 SVG paths, by name. */
+        symbols: Object,
     };
 
     connect() {
@@ -63,6 +70,7 @@ export default class extends Controller {
         await this.loadTracks();
 
         this.features = data.features;
+        this.addSymbolImages();
         this.map.addSource(SOURCE, { type: 'geojson', data: this.filtered(), cluster: true, clusterRadius: 40, clusterMaxZoom: 13 });
         this.showCount();
         this.map.addLayer({
@@ -92,9 +100,20 @@ export default class extends Controller {
             filter: ['!', ['has', 'point_count']],
             paint: {
                 'circle-color': ['get', 'color'],
-                'circle-radius': 8,
+                'circle-radius': ['case', HAS_SYMBOL, 12, 8],
                 'circle-stroke-width': 2,
                 'circle-stroke-color': '#ffffff',
+            },
+        });
+        this.map.addLayer({
+            id: 'waypoint-symbols',
+            type: 'symbol',
+            source: SOURCE,
+            filter: ['all', ['!', ['has', 'point_count']], HAS_SYMBOL],
+            layout: {
+                'icon-image': ['concat', 'symbol-', ['get', 'icon']],
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true,
             },
         });
 
@@ -107,6 +126,20 @@ export default class extends Controller {
             const bounds = new mapboxgl.LngLatBounds();
             data.features.forEach((feature) => bounds.extend(feature.geometry.coordinates));
             this.map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 0 });
+        }
+    }
+
+    /** Each category symbol as a white image for the map, named symbol-<name>. */
+    addSymbolImages() {
+        const pixels = SYMBOL_SIZE * 2;
+        for (const [name, path] of Object.entries(this.symbolsValue ?? {})) {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = pixels;
+            const context = canvas.getContext('2d');
+            context.scale(pixels / 24, pixels / 24);
+            context.fillStyle = '#ffffff';
+            context.fill(new Path2D(path));
+            this.map.addImage(`symbol-${name}`, context.getImageData(0, 0, pixels, pixels), { pixelRatio: 2 });
         }
     }
 
