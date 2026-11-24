@@ -25,7 +25,7 @@ final class Version20261110170407 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_14B784187BB1FD97 ON photo (waypoint_id)');
         $this->addSql('CREATE INDEX IDX_14B784187E3C61F9 ON photo (owner_id)');
         $this->addSql('ALTER TABLE photo ADD CONSTRAINT FK_14B784187BB1FD97 FOREIGN KEY (waypoint_id) REFERENCES waypoint (id) ON DELETE CASCADE NOT DEFERRABLE');
-        $this->addSql('ALTER TABLE photo ADD CONSTRAINT FK_14B784187E3C61F9 FOREIGN KEY (owner_id) REFERENCES system_user (id) ON DELETE CASCADE NOT DEFERRABLE');
+        $this->addSql('ALTER TABLE photo ADD CONSTRAINT FK_14B784187E3C61F9 FOREIGN KEY (owner_id) REFERENCES "system_user" (id) ON DELETE CASCADE NOT DEFERRABLE');
     }
 
     public function down(Schema $schema): void

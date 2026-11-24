@@ -33,10 +33,10 @@ final class Version20261110143331 extends AbstractMigration
         $this->addSql('CREATE TABLE waypoint_tag (waypoint_id INT NOT NULL, tag_id INT NOT NULL, PRIMARY KEY (waypoint_id, tag_id))');
         $this->addSql('CREATE INDEX IDX_64D680A7BB1FD97 ON waypoint_tag (waypoint_id)');
         $this->addSql('CREATE INDEX IDX_64D680ABAD26311 ON waypoint_tag (tag_id)');
-        $this->addSql('ALTER TABLE category ADD CONSTRAINT FK_64C19C17E3C61F9 FOREIGN KEY (owner_id) REFERENCES system_user (id) ON DELETE CASCADE NOT DEFERRABLE');
-        $this->addSql('ALTER TABLE tag ADD CONSTRAINT FK_389B7837E3C61F9 FOREIGN KEY (owner_id) REFERENCES system_user (id) ON DELETE CASCADE NOT DEFERRABLE');
+        $this->addSql('ALTER TABLE category ADD CONSTRAINT FK_64C19C17E3C61F9 FOREIGN KEY (owner_id) REFERENCES "system_user" (id) ON DELETE CASCADE NOT DEFERRABLE');
+        $this->addSql('ALTER TABLE tag ADD CONSTRAINT FK_389B7837E3C61F9 FOREIGN KEY (owner_id) REFERENCES "system_user" (id) ON DELETE CASCADE NOT DEFERRABLE');
         $this->addSql('ALTER TABLE waypoint ADD CONSTRAINT FK_B3DC588112469DE2 FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE SET NULL NOT DEFERRABLE');
-        $this->addSql('ALTER TABLE waypoint ADD CONSTRAINT FK_B3DC58817E3C61F9 FOREIGN KEY (owner_id) REFERENCES system_user (id) ON DELETE CASCADE NOT DEFERRABLE');
+        $this->addSql('ALTER TABLE waypoint ADD CONSTRAINT FK_B3DC58817E3C61F9 FOREIGN KEY (owner_id) REFERENCES "system_user" (id) ON DELETE CASCADE NOT DEFERRABLE');
         $this->addSql('ALTER TABLE waypoint_tag ADD CONSTRAINT FK_64D680A7BB1FD97 FOREIGN KEY (waypoint_id) REFERENCES waypoint (id) ON DELETE CASCADE NOT DEFERRABLE');
         $this->addSql('ALTER TABLE waypoint_tag ADD CONSTRAINT FK_64D680ABAD26311 FOREIGN KEY (tag_id) REFERENCES tag (id) ON DELETE CASCADE NOT DEFERRABLE');
     }
