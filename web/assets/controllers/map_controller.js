@@ -34,12 +34,20 @@ export default class extends Controller {
         }
 
         mapboxgl.accessToken = this.tokenValue;
-        this.map = new mapboxgl.Map({
-            container: this.mapTarget,
-            style: 'mapbox://styles/mapbox/outdoors-v12',
-            center: this.hasCenterValue && this.centerValue.length === 2 ? this.centerValue : [0, 20],
-            zoom: this.hasCenterValue && this.centerValue.length === 2 ? 14 : 1.5,
-        });
+        try {
+            this.map = new mapboxgl.Map({
+                container: this.mapTarget,
+                style: 'mapbox://styles/mapbox/outdoors-v12',
+                center: this.hasCenterValue && this.centerValue.length === 2 ? this.centerValue : [0, 20],
+                zoom: this.hasCenterValue && this.centerValue.length === 2 ? 14 : 1.5,
+            });
+        } catch (error) {
+            // Mapbox GL needs WebGL, which the browser may have turned off.
+            console.error(error);
+            this.map = null;
+            this.showMessage(this.labelsValue.noWebgl, 'warning');
+            return;
+        }
         this.map.addControl(new mapboxgl.NavigationControl());
         this.map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true } }));
         this.map.addControl(new mapboxgl.ScaleControl());

@@ -72,6 +72,12 @@ class WaypointControllerTest extends WebTestCase
         $symbols = \json_decode((string) $map->attr('data-map-symbols-value'), true, flags: \JSON_THROW_ON_ERROR);
         self::assertIsArray($symbols);
         self::assertSame(CategorySymbols::PATHS, $symbols);
+
+        // The message shown when the browser has WebGL turned off
+        $labels = \json_decode((string) $map->attr('data-map-labels-value'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($labels);
+        self::assertIsString($labels['noWebgl'] ?? null);
+        self::assertStringContainsString('WebGL', $labels['noWebgl']);
     }
 
     public function testTheMapShowsOnlyTheUsersWaypoints(): void

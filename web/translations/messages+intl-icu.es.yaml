@@ -20,6 +20,7 @@ map:
     open: Abrir
     no_token: El mapa necesita un token de acceso de Mapbox (MAPBOX_TOKEN).
     load_failed: No se pudieron cargar los puntos.
+    no_webgl: No se puede mostrar el mapa. Este navegador tiene WebGL desactivado. Activa la aceleración gráfica en la configuración del navegador.
 waypoint:
     edit_short: Editar
     count: '{count, plural, =0 {ningún punto} one {un punto} other {# puntos}}'

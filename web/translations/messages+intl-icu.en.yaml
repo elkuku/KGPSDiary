@@ -20,6 +20,7 @@ map:
     open: Open
     no_token: The map needs a Mapbox access token (MAPBOX_TOKEN).
     load_failed: The waypoints could not be loaded.
+    no_webgl: The map cannot be shown. This browser has WebGL turned off. Turn on graphics acceleration in the browser settings.
 waypoint:
     edit_short: Edit
     count: '{count, plural, =0 {no waypoints} one {one waypoint} other {# waypoints}}'
