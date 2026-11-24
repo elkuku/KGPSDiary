@@ -9,10 +9,10 @@ env:
     # Matches compose.yaml and .env.
     DATABASE_URL: 'postgresql://app:password@127.0.0.1:5432/app?serverVersion=15&charset=utf8'
 
-# Run for every pull request, plus the final commit that lands on main.
+# Run for every pull request, plus the final commit that lands on master.
 on:
     push:
-        branches: [main]
+        branches: [master]
         paths: ['web/**', '.github/workflows/web.yml']
     pull_request:
         paths: ['web/**', '.github/workflows/web.yml']

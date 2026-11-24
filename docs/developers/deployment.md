@@ -13,7 +13,7 @@ the Git repository with [`web/bin/deploy`](../../web/bin/deploy). The planned ad
 | PHP | 8.5 with `ctype`, `iconv`, `intl`, `gd` (JPEG, PNG, WebP, AVIF), `pdo_pgsql` |
 | PHP limits | `upload_max_filesize = 20M`, `post_max_size = 25M` (photos up to 20 MB) |
 | Database | PostgreSQL 15 or newer, an own database and user |
-| Git | the repository, branch `main`; after each pull: `web/bin/deploy` |
+| Git | the repository, branch `master`; after each pull: `web/bin/deploy` |
 
 `web/bin/deploy` (paths for Plesk's PHP 8.5 and Composer) removes the prod cache, installs the
 dependencies without dev packages, writes `.env.local.php`, compiles the assets and runs the
